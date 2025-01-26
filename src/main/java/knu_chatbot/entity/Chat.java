@@ -1,33 +1,26 @@
 package knu_chatbot.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Chat extends DateTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
-    @OneToMany(mappedBy = "chat")
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "MEMBER_ID", nullable = false)
-    private Member member;
-
-    public List<Question> getQuestions() {
-        return questions;
-    }
-
-    public void setMember(Member member) {
-        if (this.member != null) {
-            this.member.getChats().remove(this);
-        }
-        this.member = member;
-        this.member.getChats().add(this);
+    public void addQuestion(Question question) {
+        this.questions.add(question);
     }
 }

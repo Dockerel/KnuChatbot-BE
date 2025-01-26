@@ -1,16 +1,27 @@
 package knu_chatbot.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member extends DateTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     @Email
@@ -21,10 +32,10 @@ public class Member extends DateTimeEntity {
     @NotBlank
     private String nickname;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany
     private List<Chat> chats;
 
-    public List<Chat> getChats() {
-        return chats;
+    public void addChat(Chat chat) {
+        this.chats.add(chat);
     }
 }
