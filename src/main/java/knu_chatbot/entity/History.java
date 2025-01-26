@@ -17,6 +17,8 @@ public class Chat extends DateTimeEntity {
     @GeneratedValue
     private Long id;
 
+    private String 
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
 

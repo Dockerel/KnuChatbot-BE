@@ -26,10 +26,12 @@ public class Answer {
     @NotBlank
     private String references;
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private List<AnswerImage> answerImages = new ArrayList<>();
 
     public void addAnswerImage(AnswerImage answerImage) {
         this.answerImages.add(answerImage);
+        answerImage.setAnswer(this);
     }
 }
