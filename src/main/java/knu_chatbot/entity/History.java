@@ -1,7 +1,10 @@
 package knu_chatbot.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +14,19 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chat extends DateTimeEntity {
+public class History extends DateTimeEntity {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String 
+    private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
+
+    @OneToMany(mappedBy = "history",fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
 
     public void addQuestion(Question question) {

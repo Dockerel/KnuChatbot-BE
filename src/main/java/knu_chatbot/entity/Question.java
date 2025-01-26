@@ -28,6 +28,10 @@ public class Question extends DateTimeEntity {
     @JoinColumn(name = "ANSWER_ID")
     private Answer answer;
 
+    @ManyToOne
+    @JoinColumn(name = "HISTORY_ID")
+    private History history;
+
     public void setAnswer(Answer answer) {
         if (this.answer == null) {
             this.answer = answer;
