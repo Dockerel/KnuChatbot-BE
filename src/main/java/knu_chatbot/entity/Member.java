@@ -33,6 +33,7 @@ public class Member extends DateTimeEntity {
     private String nickname;
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<History> histories = new ArrayList<>();
 
     public void addHistory(History history) {
