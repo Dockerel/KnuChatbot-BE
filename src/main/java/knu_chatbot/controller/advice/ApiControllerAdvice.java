@@ -1,0 +1,32 @@
+package knu_chatbot.controller.advice;
+
+import knu_chatbot.controller.response.ApiResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class ApiControllerAdvice {
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ApiResponse<Object> illegalArgumentException(IllegalArgumentException e) {
+        return ApiResponse.of(
+            HttpStatus.BAD_REQUEST,
+            e.getMessage(),
+            null
+        );
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(RuntimeException.class)
+    public ApiResponse<Object> runtimeException(RuntimeException e) {
+        return ApiResponse.of(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            e.getMessage(),
+            null
+        );
+    }
+
+}
