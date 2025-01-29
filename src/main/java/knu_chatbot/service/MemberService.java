@@ -2,6 +2,7 @@ package knu_chatbot.service;
 
 import knu_chatbot.entity.Member;
 import knu_chatbot.repository.MemberRepository;
+import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
 import knu_chatbot.service.request.MemberSignupServiceRequest;
 import knu_chatbot.util.EncryptionManager;
@@ -17,9 +18,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final EncryptionManager encryptionManager;
 
-    public void emailExists(String email) {
+    public void emailExists(MemberEmailCheckServiceRequest request) {
+        String email = request.getEmail();
         Member findMember = memberRepository.findByEmail(email);
-        if (findMember == null) {
+        if (findMember != null) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
     }
