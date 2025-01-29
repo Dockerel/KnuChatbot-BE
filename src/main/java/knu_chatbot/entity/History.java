@@ -27,9 +27,6 @@ public class History extends DateTimeEntity {
     private Member member;
 
     @OneToMany(mappedBy = "history",fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Question> questions = new ArrayList<>();
-
-    public void addQuestion(Question question) {
-        this.questions.add(question);
-    }
 }

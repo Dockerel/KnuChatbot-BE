@@ -1,7 +1,6 @@
 package knu_chatbot.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,17 +20,11 @@ public class Answer {
     @GeneratedValue
     private Long id;
 
-    @NotBlank
     private String text;
-    @NotBlank
+
     private String references;
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<AnswerImage> answerImages = new ArrayList<>();
-
-    public void addAnswerImage(AnswerImage answerImage) {
-        this.answerImages.add(answerImage);
-        answerImage.setAnswer(this);
-    }
 }

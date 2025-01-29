@@ -1,8 +1,6 @@
 package knu_chatbot.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,21 +20,13 @@ public class Member extends DateTimeEntity {
     @GeneratedValue
     private Long id;
 
-    @Email
-    @NotBlank
-    @Column(unique = true)
     private String email;
 
-    @NotBlank
     private String password;
-    @NotBlank
+
     private String nickname;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     @Builder.Default
     private List<History> histories = new ArrayList<>();
-
-    public void addHistory(History history) {
-        this.histories.add(history);
-    }
 }

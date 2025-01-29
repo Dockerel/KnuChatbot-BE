@@ -71,4 +71,6 @@ class MemberControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+
+
 }
