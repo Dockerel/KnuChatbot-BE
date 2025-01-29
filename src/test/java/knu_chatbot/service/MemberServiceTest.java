@@ -2,14 +2,16 @@ package knu_chatbot.service;
 
 import knu_chatbot.entity.Member;
 import knu_chatbot.repository.MemberRepository;
+import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
 import knu_chatbot.service.request.MemberSignupServiceRequest;
-import knu_chatbot.util.EncryptionManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.net.BindException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,25 +25,26 @@ class MemberServiceTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
-    private EncryptionManager encryptionManager;
-
     @AfterEach
     void tearDown() {
         memberRepository.deleteAllInBatch();
     }
 
-    @DisplayName("EncryptionManager에서 암호화시 기존의 password와 다른 문자가 나와야 한다.")
+    @DisplayName("이미 존재하는 이메일 확인 시 예외가 발생한다.")
     @Test
-    void encryptionTest() {
+    void emailCheckTest() {
         // given
-        String password = "password";
+        String email = "email@email.com";
+        Member member = createMember(email, "password");
+        memberRepository.save(member);
 
-        // when
-        String encryptPassword = encryptionManager.encrypt(password);
+        MemberEmailCheckServiceRequest request = MemberEmailCheckServiceRequest.builder()
+            .email(email)
+            .build();
 
-        // then
-        assertThat(encryptPassword).isNotEqualTo(password);
+        // when // then
+        assertThrows(IllegalArgumentException.class, () -> memberService.emailExists(request))
+            .getMessage().equals("이미 존재하는 이메일입니다.");
     }
 
     @DisplayName("회원가입시 유저가 생성된다.")

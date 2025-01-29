@@ -9,7 +9,7 @@
 * /api/test
 *
 * /api/member/check-email ✅
-* /api/member/signup
+* /api/member/signup ✅
 * /api/member/login
 * /api/member/info
 * /api/member/delete
@@ -23,3 +23,5 @@
 * /api/history/show-questions/:historyId
 * /api/history/rename/:historyId/:historyName
 * /api/history/delete/:historyId
+
+&rarr; controller단에서 valid 확인하도록, 지금은 validate 조건이 모두 entity에 있음
