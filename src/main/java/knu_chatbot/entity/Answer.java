@@ -27,4 +27,8 @@ public class Answer {
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<AnswerImage> answerImages = new ArrayList<>();
+
+    public void addAnswerImage(AnswerImage answerImage) {
+        answerImages.add(answerImage);
+    }
 }
