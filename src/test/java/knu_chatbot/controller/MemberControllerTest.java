@@ -2,9 +2,11 @@ package knu_chatbot.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import knu_chatbot.controller.request.MemberEmailCheckRequest;
+import knu_chatbot.controller.request.MemberLoginRequest;
 import knu_chatbot.controller.request.MemberSignupRequest;
 import knu_chatbot.service.MemberService;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
+import knu_chatbot.service.request.MemberLoginServiceRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +14,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MemberController.class)
 class MemberControllerTest {
@@ -140,31 +145,6 @@ class MemberControllerTest {
             .andExpect(jsonPath("$.message").value("OK"));
     }
 
-    @DisplayName("이메일, 비밀번호, 닉네임으로 회원가입한다.")
-    @Test
-    void signupWithoutEmailTest() throws Exception {
-        // given
-        MemberSignupRequest request = MemberSignupRequest.builder()
-            .email("test@test.com")
-            .password("testPW")
-            .nickname("testNickname")
-            .build();
-
-        // when
-        doNothing().when(memberService).signup(request.toServiceRequest());
-
-        // then
-        mockMvc.perform(
-                post("/api/member/signup")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(200))
-            .andExpect(jsonPath("$.status").value("OK"))
-            .andExpect(jsonPath("$.message").value("OK"));
-    }
-
     @DisplayName("회원가입시 이메일은 필수값이다.")
     @Test
     void signupWithoutEmail() throws Exception {
@@ -226,6 +206,93 @@ class MemberControllerTest {
             .andExpect(jsonPath("$.code").value(400))
             .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
             .andExpect(jsonPath("$.message").value("유저 닉네임은 필수입니다."));
+    }
+
+    @DisplayName("이메일과 비밀번호로 로그인한다.")
+    @Test
+    void loginTest() throws Exception {
+        // given
+        MemberLoginRequest request = MemberLoginRequest.builder()
+            .email("test@test.com")
+            .password("testPW")
+            .build();
+
+        // when // then
+        MvcResult result = mockMvc.perform(
+                post("/api/member/login")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String setCookieHeader = result.getResponse().getHeader("Set-Cookie");
+
+        assertThat(setCookieHeader).isNotNull();
+        assertThat(setCookieHeader).contains("JSESSIONID");
+    }
+
+    @DisplayName("로그인시 이메일은 필수값이다.")
+    @Test
+    void loginWithoutEmail() throws Exception {
+        // given
+        MemberLoginRequest request = MemberLoginRequest.builder()
+            .password("testPW")
+            .build();
+
+        // when // then
+        mockMvc.perform(
+                post("/api/member/login")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(jsonPath("$.code").value(400))
+            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+            .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
+    }
+
+    @DisplayName("로그인시 비밀번호는 필수값이다.")
+    @Test
+    void loginWithoutPassword() throws Exception {
+        // given
+        MemberLoginRequest request = MemberLoginRequest.builder()
+            .email("test@test.com")
+            .build();
+
+        // when // then
+        mockMvc.perform(
+                post("/api/member/login")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(jsonPath("$.code").value(400))
+            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+            .andExpect(jsonPath("$.message").value("유저 비밀번호는 필수입니다."));
+    }
+
+    @DisplayName("로그인시 이메일 혹은 비밀번호가 틀리면 상태코드 400을 받는다.")
+    @Test
+    void loginWithWrongEmailOrPassword() throws Exception {
+        // given
+        MemberLoginRequest request = MemberLoginRequest.builder()
+            .email("test@test.com")
+            .password("testPW")
+            .build();
+
+        doThrow(IllegalArgumentException.class).when(memberService).login(any(MemberLoginServiceRequest.class));
+
+        // when // then
+        mockMvc.perform(
+                post("/api/member/login")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(jsonPath("$.code").value(400))
+            .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
     }
 
 }
