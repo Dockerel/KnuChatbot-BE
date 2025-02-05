@@ -66,6 +66,11 @@ public class MemberService {
         return MemberResponse.of(member, questionCount);
     }
 
+    @Transactional
+    public void deleteMyAccount(Long memberId) {
+        memberRepository.deleteById(memberId);
+    }
+
     private boolean findMemberNotMatchPassword(Member findMember, String encryptPassword) {
         return findMember == null || !findMember.getPassword().equals(encryptPassword);
     }

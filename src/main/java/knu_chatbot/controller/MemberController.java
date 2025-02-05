@@ -10,6 +10,7 @@ import knu_chatbot.controller.request.MemberLoginRequest;
 import knu_chatbot.controller.request.MemberSignupRequest;
 import knu_chatbot.controller.response.ApiResponse;
 import knu_chatbot.service.MemberService;
+import knu_chatbot.service.response.MemberResponse;
 import knu_chatbot.util.SessionConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +63,14 @@ public class MemberController {
     }
 
     @GetMapping("/me")
-    public ApiResponse<Object> me(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Long memberId) {
+    public ApiResponse<MemberResponse> me(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Long memberId) {
         return ApiResponse.ok(memberService.getMyInfo(memberId));
+    }
+
+    @DeleteMapping
+    public ApiResponse<Object> deleteMyAccount(@SessionAttribute(name = SessionConst.LOGIN_MEMBER) Long memberId) {
+        memberService.deleteMyAccount(memberId);
+        return ApiResponse.ok(null);
     }
 
     private static Cookie createCookie(String sessionId) {
