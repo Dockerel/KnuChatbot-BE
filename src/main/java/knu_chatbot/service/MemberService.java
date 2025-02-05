@@ -5,6 +5,7 @@ import knu_chatbot.repository.MemberRepository;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
 import knu_chatbot.service.request.MemberSignupServiceRequest;
+import knu_chatbot.service.response.MemberResponse;
 import knu_chatbot.util.EncryptionManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,9 +52,22 @@ public class MemberService {
         return findMember.getId();
     }
 
+    public MemberResponse getMyInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElse(null);
+
+        if (member == null) {
+            throw new IllegalArgumentException("유저가 존재하지 않습니다.");
+        }
+
+        int questionCount = member.getHistories().stream()
+            .mapToInt(h -> h.getQuestions().size())
+            .sum();
+
+        return MemberResponse.of(member, questionCount);
+    }
+
     private boolean findMemberNotMatchPassword(Member findMember, String encryptPassword) {
         return findMember == null || !findMember.getPassword().equals(encryptPassword);
     }
-
 }
 

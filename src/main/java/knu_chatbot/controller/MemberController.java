@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/member")
+@RequestMapping("/api/members")
 @RestController
 public class MemberController {
 
@@ -52,12 +52,18 @@ public class MemberController {
         return ApiResponse.ok(null);
     }
 
-    @GetMapping("me")
-    public ApiResponse<Object> me(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Long memberId) {
-        if (memberId != null) {
-            log.info("memberId: {}", memberId);
+    @PostMapping("/logout")
+    public ApiResponse<Object> logout(HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession(false);
+        if (session != null) {
+            session.invalidate();
         }
         return ApiResponse.ok(null);
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<Object> me(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Long memberId) {
+        return ApiResponse.ok(memberService.getMyInfo(memberId));
     }
 
     private static Cookie createCookie(String sessionId) {
