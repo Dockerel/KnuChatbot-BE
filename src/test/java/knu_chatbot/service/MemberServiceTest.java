@@ -1,17 +1,25 @@
 package knu_chatbot.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
+import knu_chatbot.entity.Question;
+import knu_chatbot.repository.HistoryRepository;
 import knu_chatbot.repository.MemberRepository;
+import knu_chatbot.repository.QuestionRepository;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
 import knu_chatbot.service.request.MemberSignupServiceRequest;
+import knu_chatbot.service.response.MemberResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.BindException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,6 +32,15 @@ class MemberServiceTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    @Autowired
+    private HistoryRepository historyRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @AfterEach
     void tearDown() {
@@ -146,6 +163,47 @@ class MemberServiceTest {
         // then
         assertThrows(IllegalArgumentException.class, () -> memberService.login(loginServiceRequest))
             .getMessage().equals("아이디 또는 비밀번호가 맞지 않습니다.");
+    }
+
+    @DisplayName("유저가 존재하지 않으면 예외를 발생시킨다.")
+    @Test
+    void getMyInfoWithNonExistMemberId() {
+        // given
+        String email = "email@email.com";
+        String password = "password";
+
+        Member member = memberRepository.save(createMember(email, password));
+
+        // when // then
+        assertThrows(IllegalArgumentException.class, () -> memberService.getMyInfo(member.getId() + 1L))
+            .getMessage().equals("유저가 존재하지 않습니다.");
+    }
+
+    @Transactional
+    @DisplayName("유저가 존재하면 유저의 이메일, 닉네임, 가입날짜, 해당 유저의 질문 개수를 반환한다.")
+    @Test
+    void getMyInfoWithExistMemberId() {
+        // given
+        String email = "email@email.com";
+        String password = "password";
+
+        Member member = createMember(email, password);
+
+        for (int i = 0; i < 3; i++) {
+            History history = new History();
+            history.addQuestion(List.of(new Question(), new Question(), new Question()));
+            member.addHistory(history);
+        }
+
+        Member savedMember = memberRepository.save(member);
+
+        // when
+        MemberResponse myInfo = memberService.getMyInfo(savedMember.getId());
+
+        // then
+        assertThat(myInfo).isNotNull()
+            .extracting("email", "questionCount")
+            .contains(email, 9);
     }
 
     private static MemberSignupServiceRequest createSignupServiceRequest(String targetEmail, String password) {

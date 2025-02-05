@@ -7,6 +7,7 @@ import knu_chatbot.controller.request.MemberSignupRequest;
 import knu_chatbot.service.MemberService;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
+import knu_chatbot.util.SessionConst;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,7 +52,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/check-email")
+                post("/api/members/check-email")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -73,7 +75,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/check-email")
+                post("/api/members/check-email")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -90,7 +92,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/check-email")
+                post("/api/members/check-email")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -110,7 +112,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/check-email")
+                post("/api/members/check-email")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -135,7 +137,7 @@ class MemberControllerTest {
 
         // then
         mockMvc.perform(
-                post("/api/member/signup")
+                post("/api/members/signup")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -156,7 +158,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/signup")
+                post("/api/members/signup")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -177,7 +179,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/signup")
+                post("/api/members/signup")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -198,7 +200,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/signup")
+                post("/api/members/signup")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -219,7 +221,7 @@ class MemberControllerTest {
 
         // when // then
         MvcResult result = mockMvc.perform(
-                post("/api/member/login")
+                post("/api/members/login")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -243,7 +245,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/login")
+                post("/api/members/login")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -263,7 +265,7 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/login")
+                post("/api/members/login")
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -286,8 +288,27 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/member/login")
+                post("/api/members/login")
                     .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(jsonPath("$.code").value(400))
+            .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
+    }
+
+    @DisplayName("")
+    @Test
+    void getMyInfoWithoutNonExistMemberId() throws Exception {
+        // given
+        Long memberId = 1L;
+
+        doThrow(IllegalArgumentException.class).when(memberService).getMyInfo(any(Long.class));
+
+        // when // then
+        mockMvc.perform(
+                get("/api/members/me")
+                    .sessionAttr(SessionConst.LOGIN_MEMBER, memberId)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andDo(print())
