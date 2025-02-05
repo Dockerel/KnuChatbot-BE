@@ -26,7 +26,11 @@ public class History extends DateTimeEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "history",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "history", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private List<Question> questions = new ArrayList<>();
+
+    public void addQuestion(List<Question> questions) {
+        this.questions.addAll(questions);
+    }
 }

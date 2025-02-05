@@ -26,7 +26,11 @@ public class Member extends DateTimeEntity {
 
     private String nickname;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private List<History> histories = new ArrayList<>();
+
+    public void addHistory(History history) {
+        histories.add(history);
+    }
 }

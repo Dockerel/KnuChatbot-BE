@@ -23,7 +23,7 @@ public class Question extends DateTimeEntity {
     @JoinColumn(name = "ANSWER_ID")
     private Answer answer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "HISTORY_ID")
     private History history;
 }
