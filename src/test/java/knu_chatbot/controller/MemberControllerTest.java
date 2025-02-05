@@ -7,6 +7,7 @@ import knu_chatbot.controller.request.MemberSignupRequest;
 import knu_chatbot.service.MemberService;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
+import knu_chatbot.service.response.MemberResponse;
 import knu_chatbot.util.SessionConst;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,10 +20,8 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -297,9 +296,9 @@ class MemberControllerTest {
             .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
     }
 
-    @DisplayName("")
+    @DisplayName("존재하지 않는 memberId로 내 정보 조회 시 상태코드 400을 받는다.")
     @Test
-    void getMyInfoWithoutNonExistMemberId() throws Exception {
+    void getMyInfoWithNonExistMemberId() throws Exception {
         // given
         Long memberId = 1L;
 
@@ -314,6 +313,45 @@ class MemberControllerTest {
             .andDo(print())
             .andExpect(jsonPath("$.code").value(400))
             .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
+    }
+
+    @DisplayName("존재하지 않는 memberId로 내 정보 조회 시 상태코드 400을 받는다.")
+    @Test
+    void getMyInfoWithExistMemberId() throws Exception {
+        // given
+        MemberResponse response = MemberResponse.builder()
+            .email("test@test.com")
+            .questionCount(10)
+            .build();
+
+        doReturn(response).when(memberService).getMyInfo(any(Long.class));
+
+        // when // then
+        mockMvc.perform(
+                get("/api/members/me")
+                    .sessionAttr(SessionConst.LOGIN_MEMBER, 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.status").value("OK"));
+    }
+
+    @DisplayName("내 정보 삭제 시 상태코드 200을 받는다.")
+    @Test
+    void deleteMyAccount() throws Exception {
+        // given
+        doNothing().when(memberService).deleteMyAccount(any(Long.class));
+
+        // when // then
+        mockMvc.perform(
+                delete("/api/members")
+                    .sessionAttr(SessionConst.LOGIN_MEMBER, 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.status").value("OK"));
     }
 
 }

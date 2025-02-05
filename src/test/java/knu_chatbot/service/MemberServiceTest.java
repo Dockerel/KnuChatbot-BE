@@ -206,6 +206,22 @@ class MemberServiceTest {
             .contains(email, 9);
     }
 
+    @DisplayName("계정 탈퇴시 멤버 정보가 삭제되어야 한다.")
+    @Test
+    void deleteMyAccount() {
+        // given
+        String email = "email@email.com";
+        String password = "password";
+
+        Member member = memberRepository.save(createMember(email, password));
+
+        // when
+        memberService.deleteMyAccount(member.getId());
+
+        // then
+        assertThat(memberRepository.findById(member.getId())).isEmpty();
+    }
+
     private static MemberSignupServiceRequest createSignupServiceRequest(String targetEmail, String password) {
         return MemberSignupServiceRequest.builder()
             .email(targetEmail)
