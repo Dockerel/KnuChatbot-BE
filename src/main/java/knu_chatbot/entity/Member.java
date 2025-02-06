@@ -26,11 +26,13 @@ public class Member extends DateTimeEntity {
 
     private String nickname;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<History> histories = new ArrayList<>();
 
     public void addHistory(History history) {
-        histories.add(history);
+        history.setMember(this);
+        this.getHistories().add(history);
     }
 }
+
