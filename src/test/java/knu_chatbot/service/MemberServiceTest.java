@@ -1,7 +1,5 @@
 package knu_chatbot.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
 import knu_chatbot.entity.Question;
@@ -17,9 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,11 +34,10 @@ class MemberServiceTest {
     @Autowired
     private HistoryRepository historyRepository;
 
-    @PersistenceContext
-    private EntityManager em;
-
     @AfterEach
     void tearDown() {
+        questionRepository.deleteAllInBatch();
+        historyRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
     }
 
@@ -179,7 +173,6 @@ class MemberServiceTest {
             .getMessage().equals("유저가 존재하지 않습니다.");
     }
 
-    @Transactional
     @DisplayName("유저가 존재하면 유저의 이메일, 닉네임, 가입날짜, 해당 유저의 질문 개수를 반환한다.")
     @Test
     void getMyInfoWithExistMemberId() {
@@ -189,9 +182,11 @@ class MemberServiceTest {
 
         Member member = createMember(email, password);
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 100; i++) {
             History history = new History();
-            history.addQuestion(List.of(new Question(), new Question(), new Question()));
+            for (int j = 0; j < 10; j++) {
+                history.addQuestion(new Question());
+            }
             member.addHistory(history);
         }
 
@@ -203,7 +198,7 @@ class MemberServiceTest {
         // then
         assertThat(myInfo).isNotNull()
             .extracting("email", "questionCount")
-            .contains(email, 9);
+            .contains(email, 1000);
     }
 
     @DisplayName("계정 탈퇴시 멤버 정보가 삭제되어야 한다.")

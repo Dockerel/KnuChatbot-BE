@@ -59,9 +59,7 @@ public class MemberService {
             throw new IllegalArgumentException("유저가 존재하지 않습니다.");
         }
 
-        int questionCount = member.getHistories().stream()
-            .mapToInt(h -> h.getQuestions().size())
-            .sum();
+        int questionCount = memberRepository.countByMemberId(memberId);
 
         return MemberResponse.of(member, questionCount);
     }
