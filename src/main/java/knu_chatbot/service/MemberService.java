@@ -1,6 +1,7 @@
 package knu_chatbot.service;
 
 import knu_chatbot.entity.Member;
+import knu_chatbot.exception.MyAuthenticationException;
 import knu_chatbot.repository.MemberRepository;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
@@ -23,7 +24,7 @@ public class MemberService {
         String email = request.getEmail();
         Member findMember = memberRepository.findByEmail(email);
         if (findMember != null) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new MyAuthenticationException("이미 존재하는 이메일입니다.");
         }
     }
 
@@ -31,7 +32,7 @@ public class MemberService {
     public void signup(MemberSignupServiceRequest request) {
         Member findMember = memberRepository.findByEmail(request.getEmail());
         if (findMember != null) {
-            throw new IllegalArgumentException("중복된 이메일 입니다.");
+            throw new MyAuthenticationException("중복된 이메일 입니다.");
         }
 
         String encryptPassword = encryptionManager.encrypt(request.getPassword());
@@ -46,7 +47,7 @@ public class MemberService {
         Member findMember = memberRepository.findByEmail(request.getEmail());
 
         if (findMemberNotMatchPassword(findMember, encryptPassword)) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 맞지 않습니다.");
+            throw new MyAuthenticationException("아이디 또는 비밀번호가 맞지 않습니다.");
         }
 
         return findMember.getId();
@@ -56,7 +57,8 @@ public class MemberService {
         Member member = memberRepository.findById(memberId).orElse(null);
 
         if (member == null) {
-            throw new IllegalArgumentException("유저가 존재하지 않습니다.");
+            throw new MyAuthenticationException("유저가 존재하지 않습니다.");
+
         }
 
         int questionCount = memberRepository.countByMemberId(memberId);

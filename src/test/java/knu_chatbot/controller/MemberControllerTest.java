@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import knu_chatbot.controller.request.MemberEmailCheckRequest;
 import knu_chatbot.controller.request.MemberLoginRequest;
 import knu_chatbot.controller.request.MemberSignupRequest;
+import knu_chatbot.exception.MyAuthenticationException;
 import knu_chatbot.service.MemberService;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
@@ -70,7 +71,7 @@ class MemberControllerTest {
             .email(email)
             .build();
 
-        doThrow(IllegalArgumentException.class).when(memberService).emailExists(any(MemberEmailCheckServiceRequest.class));
+        doThrow(MyAuthenticationException.class).when(memberService).emailExists(any(MemberEmailCheckServiceRequest.class));
 
         // when // then
         mockMvc.perform(
@@ -283,7 +284,7 @@ class MemberControllerTest {
             .password("testPW")
             .build();
 
-        doThrow(IllegalArgumentException.class).when(memberService).login(any(MemberLoginServiceRequest.class));
+        doThrow(MyAuthenticationException.class).when(memberService).login(any(MemberLoginServiceRequest.class));
 
         // when // then
         mockMvc.perform(
@@ -302,7 +303,7 @@ class MemberControllerTest {
         // given
         Long memberId = 1L;
 
-        doThrow(IllegalArgumentException.class).when(memberService).getMyInfo(any(Long.class));
+        doThrow(MyAuthenticationException.class).when(memberService).getMyInfo(any(Long.class));
 
         // when // then
         mockMvc.perform(

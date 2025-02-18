@@ -3,6 +3,7 @@ package knu_chatbot.service;
 import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
 import knu_chatbot.entity.Question;
+import knu_chatbot.exception.MyAuthenticationException;
 import knu_chatbot.repository.HistoryRepository;
 import knu_chatbot.repository.MemberRepository;
 import knu_chatbot.repository.QuestionRepository;
@@ -54,7 +55,7 @@ class MemberServiceTest {
             .build();
 
         // when // then
-        assertThrows(IllegalArgumentException.class, () -> memberService.emailExists(request))
+        assertThrows(MyAuthenticationException.class, () -> memberService.emailExists(request))
             .getMessage().equals("이미 존재하는 이메일입니다.");
     }
 
@@ -87,7 +88,7 @@ class MemberServiceTest {
         MemberSignupServiceRequest request = createSignupServiceRequest(email, "password");
 
         // when // then
-        assertThrows(IllegalArgumentException.class, () -> memberService.signup(request))
+        assertThrows(MyAuthenticationException.class, () -> memberService.signup(request))
             .getMessage().equals("중복된 이메일 입니다.");
     }
 
@@ -133,7 +134,7 @@ class MemberServiceTest {
             .build();
 
         // then
-        assertThrows(IllegalArgumentException.class, () -> memberService.login(loginServiceRequest))
+        assertThrows(MyAuthenticationException.class, () -> memberService.login(loginServiceRequest))
             .getMessage().equals("아이디 또는 비밀번호가 맞지 않습니다.");
     }
 
@@ -155,7 +156,7 @@ class MemberServiceTest {
             .build();
 
         // then
-        assertThrows(IllegalArgumentException.class, () -> memberService.login(loginServiceRequest))
+        assertThrows(MyAuthenticationException.class, () -> memberService.login(loginServiceRequest))
             .getMessage().equals("아이디 또는 비밀번호가 맞지 않습니다.");
     }
 
@@ -169,7 +170,7 @@ class MemberServiceTest {
         Member member = memberRepository.save(createMember(email, password));
 
         // when // then
-        assertThrows(IllegalArgumentException.class, () -> memberService.getMyInfo(member.getId() + 1L))
+        assertThrows(MyAuthenticationException.class, () -> memberService.getMyInfo(member.getId() + 1L))
             .getMessage().equals("유저가 존재하지 않습니다.");
     }
 

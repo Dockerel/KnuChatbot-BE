@@ -1,5 +1,6 @@
 package knu_chatbot.util;
 
+import knu_chatbot.exception.MyAuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.security.MessageDigest;
@@ -15,7 +16,7 @@ public class EncryptionManager {
 
             return bytesToHex(md.digest());
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("비밀번호 암호화 중 문제가 발생했습니다.");
+            throw new MyAuthenticationException("비밀번호 암호화 중 문제가 발생했습니다.", e);
         }
     }
 
