@@ -40,17 +40,17 @@ class HistoryRepositoryTest {
 
     private static Member createMember() {
         return Member.builder()
-            .email("email@email.com")
-            .build();
+                .email("email@email.com")
+                .build();
     }
 
     private static List<History> createHistories(Member member, int n) {
         List<History> histories = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             History history = History.builder()
-                .name("test")
-                .member(member)
-                .build();
+                    .name("test")
+                    .member(member)
+                    .build();
             histories.add(history);
         }
         return histories;

@@ -1,30 +1,57 @@
 package knu_chatbot.controller;
 
+import jakarta.validation.Valid;
+import knu_chatbot.controller.request.UpdateHistoryNameRequest;
 import knu_chatbot.controller.response.ApiResponse;
 import knu_chatbot.controller.response.HistoryResponse;
+import knu_chatbot.controller.response.QuestionAndAnswerResponse;
 import knu_chatbot.service.HistoryService;
-import knu_chatbot.util.SessionConst;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static knu_chatbot.util.SessionConst.LOGIN_MEMBER;
 
 @RestController
-@RequestMapping("/api/histories")
+@RequestMapping("/api/v1/histories")
 @RequiredArgsConstructor
 public class HistoryController {
 
     private final HistoryService historyService;
 
     @GetMapping
-    public ApiResponse<List<HistoryResponse>> getAllHistories(@SessionAttribute(SessionConst.LOGIN_MEMBER) Long memberId) {
-        List<HistoryResponse> histories = historyService.getAllHistoriesByMemberId(memberId).stream()
-            .map(history -> HistoryResponse.of(history))
-            .collect(Collectors.toList());
-        return ApiResponse.ok(histories);
+    public ApiResponse<List<HistoryResponse>> getAllHistories(@SessionAttribute(LOGIN_MEMBER) Long memberId) {
+        return ApiResponse.ok(historyService.getAllHistoriesByMemberId(memberId));
+    }
+
+    @PostMapping
+    public ApiResponse<HistoryResponse> createHistory(@SessionAttribute(LOGIN_MEMBER) Long memberId) {
+        return ApiResponse.ok(historyService.createHistory(memberId));
+    }
+
+    @GetMapping("/{historyId}")
+    public ApiResponse<List<QuestionAndAnswerResponse>> getAllQuestionsAndAnswersByHistoryId(
+            @SessionAttribute(LOGIN_MEMBER) Long memberId,
+            @PathVariable("historyId") Long historyId
+    ) {
+        return ApiResponse.ok(historyService.getAllQuestionsAndAnswers(memberId, historyId));
+    }
+
+    @PutMapping("/{historyId}")
+    public ApiResponse<HistoryResponse> updateHistoryName(
+            @SessionAttribute(LOGIN_MEMBER) Long memberId,
+            @PathVariable("historyId") Long historyId,
+            @Valid @RequestBody UpdateHistoryNameRequest request
+    ) {
+        return ApiResponse.ok(historyService.updateHistory(memberId, historyId, request.toServiceRequest()));
+    }
+
+    @DeleteMapping("/{historyId}")
+    public ApiResponse<String> deleteHistory(
+            @SessionAttribute(LOGIN_MEMBER) Long memberId,
+            @PathVariable("historyId") Long historyId
+    ) {
+        return ApiResponse.ok(historyService.deleteHistory(memberId, historyId));
     }
 }

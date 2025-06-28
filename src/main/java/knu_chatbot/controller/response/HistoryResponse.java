@@ -24,9 +24,9 @@ public class HistoryResponse {
 
     public static HistoryResponse of(History history) {
         return HistoryResponse.builder()
-            .id(history.getId())
-            .name(history.getName())
-            .createdAt(history.getCreatedAt())
-            .build();
+                .id(history.getId())
+                .name(history.getName())
+                .createdAt(history.getCreatedAt())
+                .build();
     }
 }
