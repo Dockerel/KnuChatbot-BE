@@ -22,7 +22,7 @@ public class MemberEmailCheckRequest {
 
     public MemberEmailCheckServiceRequest toServiceRequest() {
         return MemberEmailCheckServiceRequest.builder()
-            .email(email)
-            .build();
+                .email(email)
+                .build();
     }
 }

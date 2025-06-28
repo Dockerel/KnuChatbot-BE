@@ -24,10 +24,10 @@ public class MemberResponse {
 
     public static MemberResponse of(Member member, int questionCount) {
         return MemberResponse.builder()
-            .email(member.getEmail())
-            .nickname(member.getNickname())
-            .createdAt(member.getCreatedAt())
-            .questionCount(questionCount)
-            .build();
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .createdAt(member.getCreatedAt())
+                .questionCount(questionCount)
+                .build();
     }
 }

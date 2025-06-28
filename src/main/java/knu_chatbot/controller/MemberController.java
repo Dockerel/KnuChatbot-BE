@@ -11,70 +11,69 @@ import knu_chatbot.controller.request.MemberSignupRequest;
 import knu_chatbot.controller.response.ApiResponse;
 import knu_chatbot.service.MemberService;
 import knu_chatbot.service.response.MemberResponse;
-import knu_chatbot.util.SessionConst;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
+import static knu_chatbot.util.SessionConst.LOGIN_MEMBER;
+
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
+@RequestMapping("/api/v1/members")
 @RestController
 public class MemberController {
+
+    public static final String JSESSIONID = "JSESSIONID";
 
     private final MemberService memberService;
 
     @PostMapping("/check-email")
-    public ApiResponse<Object> checkEmail(@Valid @RequestBody MemberEmailCheckRequest request) {
-        memberService.emailExists(request.toServiceRequest());
-        return ApiResponse.ok(null);
+    public ApiResponse<String> checkEmail(@Valid @RequestBody MemberEmailCheckRequest request) {
+        return ApiResponse.ok(memberService.emailExists(request.toServiceRequest()));
     }
 
     @PostMapping("/signup")
-    public ApiResponse<Object> signup(@Valid @RequestBody MemberSignupRequest request) {
-        memberService.signup(request.toServiceRequest());
-        return ApiResponse.ok(null);
+    public ApiResponse<String> signup(@Valid @RequestBody MemberSignupRequest request) {
+        return ApiResponse.ok(memberService.signup(request.toServiceRequest()));
     }
 
     @PostMapping("/login")
-    public ApiResponse<Object> login(
-        @Valid @RequestBody MemberLoginRequest request,
-        HttpServletRequest servletRequest,
-        HttpServletResponse servletResponse
+    public ApiResponse<String> login(
+            @Valid @RequestBody MemberLoginRequest request,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
     ) {
         Long loginMemberId = memberService.login(request.toServiceRequest());
 
         HttpSession session = servletRequest.getSession();
-        session.setAttribute(SessionConst.LOGIN_MEMBER, loginMemberId);
+        session.setAttribute(LOGIN_MEMBER, loginMemberId);
 
         Cookie cookie = createCookie(session.getId());
         servletResponse.addCookie(cookie);
 
-        return ApiResponse.ok(null);
+        return ApiResponse.ok("로그인이 완료되었습니다.");
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Object> logout(HttpServletRequest servletRequest) {
+    public ApiResponse<String> logout(HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-        return ApiResponse.ok(null);
+        return ApiResponse.ok("로그아웃이 완료되었습니다.");
     }
 
     @GetMapping("/me")
-    public ApiResponse<MemberResponse> me(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Long memberId) {
+    public ApiResponse<MemberResponse> me(@SessionAttribute(name = LOGIN_MEMBER) Long memberId) {
         return ApiResponse.ok(memberService.getMyInfo(memberId));
     }
 
     @DeleteMapping
-    public ApiResponse<Object> deleteMyAccount(@SessionAttribute(name = SessionConst.LOGIN_MEMBER) Long memberId) {
+    public ApiResponse<String> deleteMyAccount(@SessionAttribute(name = LOGIN_MEMBER) Long memberId) {
         memberService.deleteMyAccount(memberId);
-        return ApiResponse.ok(null);
+        return ApiResponse.ok("회원 탈퇴가 완료되었습니다.");
     }
 
     private static Cookie createCookie(String sessionId) {
-        Cookie cookie = new Cookie("JSESSIONID", sessionId);
+        Cookie cookie = new Cookie(JSESSIONID, sessionId);
         cookie.setHttpOnly(true);  // JavaScript 접근 방지 (보안 강화)
         cookie.setSecure(true);    // HTTPS에서만 전송
         cookie.setPath("/");       // 모든 경로에서 접근 가능

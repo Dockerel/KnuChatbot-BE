@@ -1,7 +1,7 @@
 package knu_chatbot.service;
 
 import knu_chatbot.entity.Member;
-import knu_chatbot.exception.MyAuthenticationException;
+import knu_chatbot.exception.KnuChatbotException;
 import knu_chatbot.repository.MemberRepository;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
@@ -9,6 +9,7 @@ import knu_chatbot.service.request.MemberSignupServiceRequest;
 import knu_chatbot.service.response.MemberResponse;
 import knu_chatbot.util.EncryptionManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,62 +18,84 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MemberService {
 
-    private final MemberRepository memberRepository;
     private final EncryptionManager encryptionManager;
 
-    public void emailExists(MemberEmailCheckServiceRequest request) {
+    private final MemberRepository memberRepository;
+
+    public String emailExists(MemberEmailCheckServiceRequest request) {
         String email = request.getEmail();
-        Member findMember = memberRepository.findByEmail(email);
-        if (findMember != null) {
-            throw new MyAuthenticationException("이미 존재하는 이메일입니다.");
+        if (memberExistsByEmail(email)) {
+            throw new KnuChatbotException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT);
         }
+        return "유효한 이메일입니다.";
     }
 
     @Transactional
-    public void signup(MemberSignupServiceRequest request) {
-        Member findMember = memberRepository.findByEmail(request.getEmail());
-        if (findMember != null) {
-            throw new MyAuthenticationException("중복된 이메일 입니다.");
+    public String signup(MemberSignupServiceRequest request) {
+        String email = request.getEmail();
+        if (memberExistsByEmail(email)) {
+            throw new KnuChatbotException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT);
+        }
+
+        if (passwordCheckIsNotMatch(request)) {
+            throw new KnuChatbotException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
 
         String encryptPassword = encryptionManager.encrypt(request.getPassword());
-        Member member = request.toEntity(encryptPassword);
+
+        Member member = Member.of(request.getEmail(), encryptPassword, request.getNickname());
         memberRepository.save(member);
+
+        return "회원가입이 완료되었습니다.";
     }
 
     public Long login(MemberLoginServiceRequest request) {
-
         String encryptPassword = encryptionManager.encrypt(request.getPassword());
 
-        Member findMember = memberRepository.findByEmail(request.getEmail());
+        Member findMember = findMemberByEmail(request.getEmail());
 
-        if (findMemberNotMatchPassword(findMember, encryptPassword)) {
-            throw new MyAuthenticationException("아이디 또는 비밀번호가 맞지 않습니다.");
+        if (passwordIsNotMatch(findMember, encryptPassword)) {
+            throw new KnuChatbotException("아이디 또는 비밀번호가 맞지 않습니다.", HttpStatus.UNAUTHORIZED);
         }
 
         return findMember.getId();
     }
 
     public MemberResponse getMyInfo(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElse(null);
+        Member member = findMemberById(memberId);
 
-        if (member == null) {
-            throw new MyAuthenticationException("유저가 존재하지 않습니다.");
-
-        }
-
-        int questionCount = memberRepository.countByMemberId(memberId);
+        int questionCount = memberRepository.countQuestionsByMemberId(memberId);
 
         return MemberResponse.of(member, questionCount);
     }
 
     @Transactional
     public void deleteMyAccount(Long memberId) {
+        if (memberId == null) return;
         memberRepository.deleteById(memberId);
     }
 
-    private boolean findMemberNotMatchPassword(Member findMember, String encryptPassword) {
+    private static boolean passwordCheckIsNotMatch(MemberSignupServiceRequest request) {
+        return !request.getPassword().equals(request.getPasswordCheck());
+    }
+
+    private boolean passwordIsNotMatch(Member findMember, String encryptPassword) {
         return findMember == null || !findMember.getPassword().equals(encryptPassword);
     }
+
+    private boolean memberExistsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    private Member findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new KnuChatbotException("유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+    }
+
+    private Member findMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new KnuChatbotException("유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+    }
+
 }
 

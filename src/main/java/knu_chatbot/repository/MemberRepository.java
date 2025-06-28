@@ -6,11 +6,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    Member findByEmail(String email);
+    Optional<Member> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 
     @Query("SELECT COUNT(*) FROM Member m JOIN m.histories h JOIN h.questions q WHERE m.id = :memberId")
-    int countByMemberId(@Param("memberId") Long memberId);
+    int countQuestionsByMemberId(@Param("memberId") Long memberId);
 }

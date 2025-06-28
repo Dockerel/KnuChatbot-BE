@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -28,10 +30,10 @@ class MemberRepositoryTest {
         memberRepository.save(member);
 
         // when
-        Member findMember = memberRepository.findByEmail(targetEmail);
+        Optional<Member> findMember = memberRepository.findByEmail(targetEmail);
 
         // then
-        assertThat(findMember).isEqualTo(member);
+        assertThat(findMember).isPresent().get().isEqualTo(member);
     }
 
     @DisplayName("회원이 한 질문 수를 조회한다.")
@@ -59,7 +61,7 @@ class MemberRepositoryTest {
 
 
         // when
-        int result = memberRepository.countByMemberId(saveMember.getId());
+        int result = memberRepository.countQuestionsByMemberId(saveMember.getId());
 
         // then
         assertThat(result).isEqualTo(20);
@@ -67,10 +69,10 @@ class MemberRepositoryTest {
 
     private static Member createMember(String targetEmail, String targetPassword, String targetNickname) {
         return Member.builder()
-            .email(targetEmail)
-            .password(targetPassword)
-            .nickname(targetNickname)
-            .build();
+                .email(targetEmail)
+                .password(targetPassword)
+                .nickname(targetNickname)
+                .build();
     }
 
 }

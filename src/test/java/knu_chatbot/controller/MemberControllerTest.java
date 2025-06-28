@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import knu_chatbot.controller.request.MemberEmailCheckRequest;
 import knu_chatbot.controller.request.MemberLoginRequest;
 import knu_chatbot.controller.request.MemberSignupRequest;
-import knu_chatbot.exception.MyAuthenticationException;
+import knu_chatbot.exception.KnuChatbotException;
 import knu_chatbot.service.MemberService;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,21 +46,21 @@ class MemberControllerTest {
         // given
         String email = "test@test.com";
         MemberEmailCheckRequest request = MemberEmailCheckRequest.builder()
-            .email(email)
-            .build();
+                .email(email)
+                .build();
 
-        doNothing().when(memberService).emailExists(request.toServiceRequest());
+        doReturn("pass").when(memberService).emailExists(request.toServiceRequest());
 
         // when // then
         mockMvc.perform(
-                post("/api/members/check-email")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(200))
-            .andExpect(jsonPath("$.status").value("OK"))
-            .andExpect(jsonPath("$.message").value("OK"));
+                        post("/api/v1/members/check-email")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
     @DisplayName("존재하는 이메일은 상태코드 400을 받는다.")
@@ -68,20 +69,20 @@ class MemberControllerTest {
         // given
         String email = "test@test.com";
         MemberEmailCheckRequest request = MemberEmailCheckRequest.builder()
-            .email(email)
-            .build();
+                .email(email)
+                .build();
 
-        doThrow(MyAuthenticationException.class).when(memberService).emailExists(any(MemberEmailCheckServiceRequest.class));
+        doThrow(new KnuChatbotException("test", CONFLICT)).when(memberService).emailExists(any(MemberEmailCheckServiceRequest.class));
 
         // when // then
         mockMvc.perform(
-                post("/api/members/check-email")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
+                        post("/api/v1/members/check-email")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(409))
+                .andExpect(jsonPath("$.status").value("CONFLICT"));
     }
 
     @DisplayName("이메일 확인시 이메일은 필수값이다.")
@@ -92,14 +93,14 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                post("/api/members/check-email")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
+                        post("/api/v1/members/check-email")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
     }
 
     @DisplayName("이메일 확인 시 이메일은 이메일 형태를 가져야 한다.")
@@ -107,19 +108,19 @@ class MemberControllerTest {
     void emailCheckEmailFormatTest() throws Exception {
         // given
         MemberEmailCheckRequest request = MemberEmailCheckRequest.builder()
-            .email("test.test.com")
-            .build();
+                .email("test.test.com")
+                .build();
 
         // when // then
         mockMvc.perform(
-                post("/api/members/check-email")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("이메일 형태로 입력해주세요."));
+                        post("/api/v1/members/check-email")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("이메일 형태로 입력해주세요."));
     }
 
     @DisplayName("이메일, 비밀번호, 닉네임으로 회원가입한다.")
@@ -127,24 +128,24 @@ class MemberControllerTest {
     void signupTest() throws Exception {
         // given
         MemberSignupRequest request = MemberSignupRequest.builder()
-            .email("test@test.com")
-            .password("testPW")
-            .nickname("testNickname")
-            .build();
+                .email("test@test.com")
+                .password("testPW")
+                .nickname("testNickname")
+                .build();
 
         // when
-        doNothing().when(memberService).signup(request.toServiceRequest());
+        doReturn("pass").when(memberService).signup(request.toServiceRequest());
 
         // then
         mockMvc.perform(
-                post("/api/members/signup")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(200))
-            .andExpect(jsonPath("$.status").value("OK"))
-            .andExpect(jsonPath("$.message").value("OK"));
+                        post("/api/v1/members/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
     @DisplayName("회원가입시 이메일은 필수값이다.")
@@ -152,20 +153,20 @@ class MemberControllerTest {
     void signupWithoutEmail() throws Exception {
         // given
         MemberSignupRequest request = MemberSignupRequest.builder()
-            .password("testPW")
-            .nickname("testNickname")
-            .build();
+                .password("testPW")
+                .nickname("testNickname")
+                .build();
 
         // when // then
         mockMvc.perform(
-                post("/api/members/signup")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
+                        post("/api/v1/members/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
     }
 
     @DisplayName("회원가입시 비밀번호는 필수값이다.")
@@ -173,20 +174,20 @@ class MemberControllerTest {
     void signupWithoutPassword() throws Exception {
         // given
         MemberSignupRequest request = MemberSignupRequest.builder()
-            .email("test@test.com")
-            .nickname("testNickname")
-            .build();
+                .email("test@test.com")
+                .nickname("testNickname")
+                .build();
 
         // when // then
         mockMvc.perform(
-                post("/api/members/signup")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("유저 비밀번호는 필수입니다."));
+                        post("/api/v1/members/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("유저 비밀번호는 필수입니다."));
     }
 
     @DisplayName("회원가입시 닉네임은 필수값이다.")
@@ -194,20 +195,20 @@ class MemberControllerTest {
     void signupWithoutNickname() throws Exception {
         // given
         MemberSignupRequest request = MemberSignupRequest.builder()
-            .email("test@test.com")
-            .password("testPW")
-            .build();
+                .email("test@test.com")
+                .password("testPW")
+                .build();
 
         // when // then
         mockMvc.perform(
-                post("/api/members/signup")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("유저 닉네임은 필수입니다."));
+                        post("/api/v1/members/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("유저 닉네임은 필수입니다."));
     }
 
     @DisplayName("이메일과 비밀번호로 로그인한다.")
@@ -215,19 +216,19 @@ class MemberControllerTest {
     void loginTest() throws Exception {
         // given
         MemberLoginRequest request = MemberLoginRequest.builder()
-            .email("test@test.com")
-            .password("testPW")
-            .build();
+                .email("test@test.com")
+                .password("testPW")
+                .build();
 
         // when // then
         MvcResult result = mockMvc.perform(
-                post("/api/members/login")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andReturn();
+                        post("/api/v1/members/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
 
         String setCookieHeader = result.getResponse().getHeader("Set-Cookie");
 
@@ -240,19 +241,19 @@ class MemberControllerTest {
     void loginWithoutEmail() throws Exception {
         // given
         MemberLoginRequest request = MemberLoginRequest.builder()
-            .password("testPW")
-            .build();
+                .password("testPW")
+                .build();
 
         // when // then
         mockMvc.perform(
-                post("/api/members/login")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
+                        post("/api/v1/members/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("유저 이메일은 필수입니다."));
     }
 
     @DisplayName("로그인시 비밀번호는 필수값이다.")
@@ -260,19 +261,19 @@ class MemberControllerTest {
     void loginWithoutPassword() throws Exception {
         // given
         MemberLoginRequest request = MemberLoginRequest.builder()
-            .email("test@test.com")
-            .build();
+                .email("test@test.com")
+                .build();
 
         // when // then
         mockMvc.perform(
-                post("/api/members/login")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("유저 비밀번호는 필수입니다."));
+                        post("/api/v1/members/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("유저 비밀번호는 필수입니다."));
     }
 
     @DisplayName("로그인시 이메일 혹은 비밀번호가 틀리면 상태코드 400을 받는다.")
@@ -280,21 +281,21 @@ class MemberControllerTest {
     void loginWithWrongEmailOrPassword() throws Exception {
         // given
         MemberLoginRequest request = MemberLoginRequest.builder()
-            .email("test@test.com")
-            .password("testPW")
-            .build();
+                .email("test@test.com")
+                .password("testPW")
+                .build();
 
-        doThrow(MyAuthenticationException.class).when(memberService).login(any(MemberLoginServiceRequest.class));
+        doThrow(new KnuChatbotException("test", UNAUTHORIZED)).when(memberService).login(any(MemberLoginServiceRequest.class));
 
         // when // then
         mockMvc.perform(
-                post("/api/members/login")
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
+                        post("/api/v1/members/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.status").value("UNAUTHORIZED"));
     }
 
     @DisplayName("존재하지 않는 memberId로 내 정보 조회 시 상태코드 400을 받는다.")
@@ -303,17 +304,17 @@ class MemberControllerTest {
         // given
         Long memberId = 1L;
 
-        doThrow(MyAuthenticationException.class).when(memberService).getMyInfo(any(Long.class));
+        doThrow(new KnuChatbotException("test", FORBIDDEN)).when(memberService).getMyInfo(any(Long.class));
 
         // when // then
         mockMvc.perform(
-                get("/api/members/me")
-                    .sessionAttr(SessionConst.LOGIN_MEMBER, memberId)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(400))
-            .andExpect(jsonPath("$.status").value("BAD_REQUEST"));
+                        get("/api/v1/members/me")
+                                .sessionAttr(SessionConst.LOGIN_MEMBER, memberId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.status").value("FORBIDDEN"));
     }
 
     @DisplayName("존재하지 않는 memberId로 내 정보 조회 시 상태코드 400을 받는다.")
@@ -321,21 +322,21 @@ class MemberControllerTest {
     void getMyInfoWithExistMemberId() throws Exception {
         // given
         MemberResponse response = MemberResponse.builder()
-            .email("test@test.com")
-            .questionCount(10)
-            .build();
+                .email("test@test.com")
+                .questionCount(10)
+                .build();
 
         doReturn(response).when(memberService).getMyInfo(any(Long.class));
 
         // when // then
         mockMvc.perform(
-                get("/api/members/me")
-                    .sessionAttr(SessionConst.LOGIN_MEMBER, 1L)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(200))
-            .andExpect(jsonPath("$.status").value("OK"));
+                        get("/api/v1/members/me")
+                                .sessionAttr(SessionConst.LOGIN_MEMBER, 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.status").value("OK"));
     }
 
     @DisplayName("내 정보 삭제 시 상태코드 200을 받는다.")
@@ -346,13 +347,13 @@ class MemberControllerTest {
 
         // when // then
         mockMvc.perform(
-                delete("/api/members")
-                    .sessionAttr(SessionConst.LOGIN_MEMBER, 1L)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(jsonPath("$.code").value(200))
-            .andExpect(jsonPath("$.status").value("OK"));
+                        delete("/api/v1/members")
+                                .sessionAttr(SessionConst.LOGIN_MEMBER, 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.status").value("OK"));
     }
 
 }

@@ -23,8 +23,8 @@ public class MemberLoginRequest {
 
     public MemberLoginServiceRequest toServiceRequest() {
         return MemberLoginServiceRequest.builder()
-            .email(email)
-            .password(password)
-            .build();
+                .email(email)
+                .password(password)
+                .build();
     }
 }
