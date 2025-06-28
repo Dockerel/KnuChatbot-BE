@@ -1,6 +1,4 @@
-# member
-
-## todo
+# todo
 
 * /api/v1/member/check-email ✅
 * /api/v1/member/signup ✅
