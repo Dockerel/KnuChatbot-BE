@@ -19,13 +19,13 @@ public class SessionController {
         }
 //세션 데이터 출력
         session.getAttributeNames().asIterator()
-            .forEachRemaining(name -> log.info("session name={}, value={}",
-                name, session.getAttribute(name)));
+                .forEachRemaining(name -> log.info("session name={}, value={}",
+                        name, session.getAttribute(name)));
         log.info("sessionId={}", session.getId());
         log.info("maxInactiveInterval={}", session.getMaxInactiveInterval());
         log.info("creationTime={}", new Date(session.getCreationTime()));
         log.info("lastAccessedTime={}", new
-            Date(session.getLastAccessedTime()));
+                Date(session.getLastAccessedTime()));
         log.info("isNew={}", session.isNew());
         return "세션 출력";
     }
