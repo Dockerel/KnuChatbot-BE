@@ -30,6 +30,12 @@ public class History extends DateTimeEntity {
     @Builder.Default
     private List<Question> questions = new ArrayList<>();
 
+    public static History of(String name) {
+        return History.builder()
+                .name(name)
+                .build();
+    }
+
     public void addQuestion(Question question) {
         question.setHistory(this);
         this.getQuestions().add(question);
@@ -37,5 +43,9 @@ public class History extends DateTimeEntity {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void changeName(String name) {
+        this.name = name;
     }
 }

@@ -19,8 +19,11 @@ public class Image {
     @GeneratedValue
     private Long id;
 
-    // base64 인코딩된 문자열 해시화한 값
-    private String hashValue;
+    private String encodedImage;
 
-    private String url;
+    public static Image of(String encodedImage) {
+        return Image.builder()
+                .encodedImage(encodedImage)
+                .build();
+    }
 }

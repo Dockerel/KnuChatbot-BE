@@ -24,11 +24,18 @@ public class Answer {
 
     private String references;
 
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<AnswerImage> answerImages = new ArrayList<>();
+    private List<Image> images = new ArrayList<>();
 
-    public void addAnswerImage(AnswerImage answerImage) {
-        answerImages.add(answerImage);
+    public static Answer of(String text, String references) {
+        return Answer.builder()
+                .text(text)
+                .references(references)
+                .build();
+    }
+
+    public void addImage(Image image) {
+        images.add(image);
     }
 }
