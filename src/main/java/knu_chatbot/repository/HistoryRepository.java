@@ -13,11 +13,9 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 
     List<History> findAllByMemberId(Long memberId);
 
-    @Query(
-            "select h from History h " +
-                    "left join fetch h.questions q " +
-                    "left join fetch q.answer a " +
-                    "where h.id = :historyId"
-    )
+    @Query("select h from History h " +
+            "left join fetch h.questions q " +
+            "left join fetch q.answer a " +
+            "where h.id = :historyId")
     History findHistoryWithQuestionsAndAnswers(@Param("historyId") Long historyId);
 }

@@ -89,15 +89,7 @@ public class HistoryService {
     }
 
     private History findHistoryWithQuestionsAndAnswersAndImages(Long historyId) {
-        History history = historyRepository.findHistoryWithQuestionsAndAnswers(historyId);
-
-        List<Answer> answers = history.getQuestions().stream()
-                .map(question -> question.getAnswer())
-                .collect(Collectors.toList());
-
-        answerRepository.findAllAnswersWithImages(answers);
-
-        return history;
+        return historyRepository.findHistoryWithQuestionsAndAnswers(historyId);
     }
 
     private History findHistoryById(Long historyId) {

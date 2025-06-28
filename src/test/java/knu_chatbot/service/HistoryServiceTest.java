@@ -66,6 +66,7 @@ class HistoryServiceTest {
             Answer answer = Answer.of("text", "reference");
 
             answer.addImage(Image.of("image"));
+            answer.addImage(Image.of("image"));
 
             question.setAnswer(answer);
             history.addQuestion(question);
@@ -73,6 +74,9 @@ class HistoryServiceTest {
         History saveHistory = historyRepository.save(history);
         member.addHistory(history);
         Member saveMember = memberRepository.save(member);
+
+        em.flush();
+        em.clear();
 
         // when
         List<QuestionAndAnswerResponse> questionsAndAnswers = historyService.getAllQuestionsAndAnswers(saveMember.getId(), saveHistory.getId());
