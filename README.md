@@ -14,5 +14,5 @@
 * /api/v1/histories : (POST) - new history ✅
 * /api/v1/histories/:historyId : (GET) - get chats by historyId ✅
 * /api/v1/histories/:historyId : (POST) - create new chat ❌
-* /api/v1/histories/:historyId : (PUT) [historyName]
-* /api/v1/histories/:historyId : (DELETE)
+* /api/v1/histories/:historyId : (PUT) [historyName] ✅
+* /api/v1/histories/:historyId : (DELETE) ✅
