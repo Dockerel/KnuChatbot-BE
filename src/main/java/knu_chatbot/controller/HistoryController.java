@@ -3,6 +3,7 @@ package knu_chatbot.controller;
 import jakarta.validation.Valid;
 import knu_chatbot.controller.request.UpdateHistoryNameRequest;
 import knu_chatbot.controller.response.ApiResponse;
+import knu_chatbot.controller.response.CreateNewChatResponse;
 import knu_chatbot.controller.response.HistoryResponse;
 import knu_chatbot.controller.response.QuestionAndAnswerResponse;
 import knu_chatbot.service.HistoryService;
@@ -36,6 +37,15 @@ public class HistoryController {
             @PathVariable("historyId") Long historyId
     ) {
         return ApiResponse.ok(historyService.getAllQuestionsAndAnswers(memberId, historyId));
+    }
+
+    @PostMapping("/{historyId}")
+    public ApiResponse<CreateNewChatResponse> createNewChatByHistoryId(
+            @SessionAttribute(LOGIN_MEMBER) Long memberId,
+            @PathVariable("historyId") Long historyId,
+            @Valid @RequestBody CreateNewChatRequest request
+    ) {
+        return ApiResponse.ok(historyService.createNewChat(memberId, historyId, request));
     }
 
     @PutMapping("/{historyId}")

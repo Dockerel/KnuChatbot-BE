@@ -29,6 +29,6 @@ public class AnswerResponse {
     }
 
     public static AnswerResponse of(Answer answer, List<String> images) {
-        return of(answer.getText(), answer.getReferences(), images);
+        return of(answer.getText(), answer.getReference(), images);
     }
 }

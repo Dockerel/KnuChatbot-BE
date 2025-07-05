@@ -26,6 +26,8 @@ public class Member extends DateTimeEntity {
 
     private String nickname;
 
+    private int questionCount = 0;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<History> histories = new ArrayList<>();
@@ -45,6 +47,10 @@ public class Member extends DateTimeEntity {
 
     public void removeHistory(Long historyId) {
         this.getHistories().removeIf(history -> history.getId().equals(historyId));
+    }
+
+    public void updateQuestionCount(int questionCount) {
+        this.questionCount = questionCount;
     }
 }
 

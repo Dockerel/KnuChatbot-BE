@@ -63,10 +63,7 @@ public class MemberService {
 
     public MemberResponse getMyInfo(Long memberId) {
         Member member = findMemberById(memberId);
-
-        int questionCount = memberRepository.countQuestionsByMemberId(memberId);
-
-        return MemberResponse.of(member, questionCount);
+        return MemberResponse.of(member, member.getQuestionCount());
     }
 
     @Transactional

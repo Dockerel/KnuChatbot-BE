@@ -1,10 +1,8 @@
 package knu_chatbot.service;
 
 import knu_chatbot.annotation.CheckHistoryOwner;
-import knu_chatbot.controller.response.AnswerResponse;
-import knu_chatbot.controller.response.HistoryResponse;
-import knu_chatbot.controller.response.QuestionAndAnswerResponse;
-import knu_chatbot.controller.response.QuestionResponse;
+import knu_chatbot.controller.CreateNewChatRequest;
+import knu_chatbot.controller.response.*;
 import knu_chatbot.entity.Answer;
 import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
@@ -15,6 +13,7 @@ import knu_chatbot.repository.MemberRepository;
 import knu_chatbot.service.request.UpdateHistoryNameServiceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +68,13 @@ public class HistoryService {
 
     @CheckHistoryOwner
     @Transactional
+    public CreateNewChatResponse createNewChat(Long memberId, Long historyId, CreateNewChatRequest request) {
+        // member question count 갱신
+        return null;
+    }
+
+    @CheckHistoryOwner
+    @Transactional
     public HistoryResponse updateHistory(Long memberId, Long historyId, UpdateHistoryNameServiceRequest request) {
         History history = findHistoryById(historyId);
         history.changeName(request.getName());
@@ -81,6 +87,19 @@ public class HistoryService {
         Member member = findMemberById(memberId);
         member.removeHistory(historyId);
         return "히스토리가 삭제되었습니다.";
+    }
+
+    @Scheduled(cron = "0 0 2 * * ?") // 매일 새벽 2시
+    private void validateQuestionCounts() {
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+            int actualCount = memberRepository.countQuestionsByMemberId(member.getId());
+            if (member.getQuestionCount() != actualCount) {
+                member.updateQuestionCount(actualCount);
+                memberRepository.save(member);
+            }
+        }
     }
 
     private Member findMemberById(Long memberId) {
