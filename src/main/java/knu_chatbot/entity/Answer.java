@@ -22,16 +22,19 @@ public class Answer {
 
     private String text;
 
-    private String references;
+    private String reference;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "answer")
+    private Question question;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Image> images = new ArrayList<>();
 
-    public static Answer of(String text, String references) {
+    public static Answer of(String text, String reference) {
         return Answer.builder()
                 .text(text)
-                .references(references)
+                .reference(reference)
                 .build();
     }
 
