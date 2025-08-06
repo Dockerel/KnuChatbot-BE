@@ -24,8 +24,7 @@ public class Answer {
 
     private String reference;
 
-    @OneToOne
-    @JoinColumn(name = "QUESTION_ID")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "answer")
     private Question question;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
