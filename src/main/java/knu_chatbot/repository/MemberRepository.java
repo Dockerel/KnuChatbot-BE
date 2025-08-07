@@ -17,4 +17,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT COUNT(*) FROM Member m JOIN m.histories h JOIN h.questions q WHERE m.id = :memberId")
     int countQuestionsByMemberId(@Param("memberId") Long memberId);
+
 }

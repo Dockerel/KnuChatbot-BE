@@ -7,13 +7,11 @@ import knu_chatbot.entity.Answer;
 import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
 import knu_chatbot.exception.KnuChatbotException;
-import knu_chatbot.repository.AnswerRepository;
 import knu_chatbot.repository.HistoryRepository;
 import knu_chatbot.repository.MemberRepository;
 import knu_chatbot.service.request.UpdateHistoryNameServiceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +26,6 @@ public class HistoryService {
 
     private final HistoryRepository historyRepository;
     private final MemberRepository memberRepository;
-    private final AnswerRepository answerRepository;
 
     public List<HistoryResponse> getAllHistoriesByMemberId(Long memberId) {
         return historyRepository.findAllByMemberId(memberId).stream()
@@ -87,19 +84,6 @@ public class HistoryService {
         Member member = findMemberById(memberId);
         member.removeHistory(historyId);
         return "히스토리가 삭제되었습니다.";
-    }
-
-    @Scheduled(cron = "0 0 2 * * ?") // 매일 새벽 2시
-    private void validateQuestionCounts() {
-        List<Member> members = memberRepository.findAll();
-
-        for (Member member : members) {
-            int actualCount = memberRepository.countQuestionsByMemberId(member.getId());
-            if (member.getQuestionCount() != actualCount) {
-                member.updateQuestionCount(actualCount);
-                memberRepository.save(member);
-            }
-        }
     }
 
     private Member findMemberById(Long memberId) {

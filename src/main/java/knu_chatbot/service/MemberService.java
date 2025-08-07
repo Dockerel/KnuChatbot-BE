@@ -10,8 +10,12 @@ import knu_chatbot.service.response.MemberResponse;
 import knu_chatbot.util.EncryptionManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -70,6 +74,21 @@ public class MemberService {
     public void deleteMyAccount(Long memberId) {
         if (memberId == null) return;
         memberRepository.deleteById(memberId);
+    }
+
+    @Async
+    @Transactional
+    public CompletableFuture<Void> validateQuestionCount(Member member) {
+        int actualCount = memberRepository.countQuestionsByMemberId(member.getId());
+        if (member.getQuestionCount() != actualCount) {
+            member.updateQuestionCount(actualCount);
+            memberRepository.save(member);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    public List<Member> findAllMembers() {
+        return memberRepository.findAll();
     }
 
     private static boolean passwordCheckIsNotMatch(MemberSignupServiceRequest request) {
