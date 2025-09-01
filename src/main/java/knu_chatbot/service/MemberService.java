@@ -76,7 +76,7 @@ public class MemberService {
         memberRepository.deleteById(memberId);
     }
 
-    @Async
+    @Async(value = "validationExecutor")
     @Transactional
     public CompletableFuture<Void> validateQuestionCount(Member member) {
         int actualCount = memberRepository.countQuestionsByMemberId(member.getId());

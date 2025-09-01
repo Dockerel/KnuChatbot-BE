@@ -17,7 +17,6 @@ public class QuestionValidationScheduler {
 
     @Scheduled(cron = "0 0 2 * * ?") // 매일 새벽 2시
     public void validateQuestionCounts() {
-        long start = System.currentTimeMillis();
         List<Member> members = memberService.findAllMembers();
 
         List<CompletableFuture<Void>> futures =
@@ -25,7 +24,5 @@ public class QuestionValidationScheduler {
                         .map(memberService::validateQuestionCount)
                         .toList();
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
-
-        System.out.println(System.currentTimeMillis() - start + "ms");
     }
 }
