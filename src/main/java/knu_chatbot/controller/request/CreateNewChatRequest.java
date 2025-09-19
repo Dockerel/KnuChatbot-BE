@@ -1,4 +1,4 @@
-package knu_chatbot.controller;
+package knu_chatbot.controller.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

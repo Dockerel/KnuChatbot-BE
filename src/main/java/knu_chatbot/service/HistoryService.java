@@ -1,7 +1,7 @@
 package knu_chatbot.service;
 
 import knu_chatbot.annotation.CheckHistoryOwner;
-import knu_chatbot.controller.CreateNewChatRequest;
+import knu_chatbot.controller.request.CreateNewChatRequest;
 import knu_chatbot.controller.response.*;
 import knu_chatbot.entity.Answer;
 import knu_chatbot.entity.History;

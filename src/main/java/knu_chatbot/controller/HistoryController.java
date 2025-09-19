@@ -1,6 +1,7 @@
 package knu_chatbot.controller;
 
 import jakarta.validation.Valid;
+import knu_chatbot.controller.request.CreateNewChatRequest;
 import knu_chatbot.controller.request.UpdateHistoryNameRequest;
 import knu_chatbot.controller.response.ApiResponse;
 import knu_chatbot.controller.response.CreateNewChatResponse;
