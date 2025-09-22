@@ -182,8 +182,6 @@ replay_pid*
 
 .DS_Store
 
-src/main/resources/application-prod.properties
-
 loki/data/
 
 !**/gradle/wrapper/gradle-wrapper.jar
