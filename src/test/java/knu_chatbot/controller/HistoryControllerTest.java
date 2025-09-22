@@ -1,6 +1,7 @@
 package knu_chatbot.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import knu_chatbot.controller.request.UpdateHistoryNameRequest;
 import knu_chatbot.controller.response.AnswerResponse;
 import knu_chatbot.controller.response.HistoryResponse;
@@ -10,6 +11,7 @@ import knu_chatbot.entity.History;
 import knu_chatbot.exception.KnuChatbotException;
 import knu_chatbot.service.HistoryService;
 import knu_chatbot.service.request.UpdateHistoryNameServiceRequest;
+import knu_chatbot.util.DiscordClient;
 import knu_chatbot.util.SessionConst;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,12 @@ class HistoryControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    DiscordClient discordClient;
+
+    @MockitoBean
+    MeterRegistry meterRegistry;
 
     @MockitoBean
     private HistoryService historyService;
