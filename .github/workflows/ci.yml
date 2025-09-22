@@ -34,4 +34,4 @@ jobs:
 
       - name: test for main
         if: github.event.pull_request.base.ref == 'main'
-        run: ./gradle clean build
+        run: ./gradlew clean build
