@@ -1,11 +1,13 @@
 package knu_chatbot.repository;
 
+import knu_chatbot.config.WithContainerTest;
 import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
 import knu_chatbot.entity.Question;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.Optional;
@@ -13,7 +15,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-class MemberRepositoryTest {
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class MemberRepositoryTest extends WithContainerTest {
 
     @Autowired
     private MemberRepository memberRepository;

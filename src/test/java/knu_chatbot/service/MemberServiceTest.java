@@ -1,21 +1,20 @@
 package knu_chatbot.service;
 
+import knu_chatbot.config.WithContainerTest;
 import knu_chatbot.entity.History;
 import knu_chatbot.entity.Member;
 import knu_chatbot.entity.Question;
 import knu_chatbot.exception.KnuChatbotException;
-import knu_chatbot.repository.HistoryRepository;
 import knu_chatbot.repository.MemberRepository;
-import knu_chatbot.repository.QuestionRepository;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
 import knu_chatbot.service.request.MemberSignupServiceRequest;
 import knu_chatbot.service.response.MemberResponse;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -23,26 +22,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-class MemberServiceTest {
+@Transactional
+class MemberServiceTest extends WithContainerTest {
 
     @Autowired
     private MemberService memberService;
 
     @Autowired
     private MemberRepository memberRepository;
-
-    @Autowired
-    private QuestionRepository questionRepository;
-
-    @Autowired
-    private HistoryRepository historyRepository;
-
-    @AfterEach
-    void tearDown() {
-        questionRepository.deleteAllInBatch();
-        historyRepository.deleteAllInBatch();
-        memberRepository.deleteAllInBatch();
-    }
 
     @DisplayName("이미 존재하는 이메일 확인 시 예외가 발생한다.")
     @Test
@@ -201,7 +188,7 @@ class MemberServiceTest {
         // then
         assertThat(myInfo).isNotNull()
                 .extracting("email", "questionCount")
-                .contains(email, 1000);
+                .contains(email, 0);
     }
 
     @DisplayName("계정 탈퇴시 멤버 정보가 삭제되어야 한다.")

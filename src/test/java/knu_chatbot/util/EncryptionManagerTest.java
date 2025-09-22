@@ -2,16 +2,16 @@ package knu_chatbot.util;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 class EncryptionManagerTest {
 
-    @Autowired
-    private EncryptionManager encryptionManager;
+    private final EncryptionManager encryptionManager;
+
+    public EncryptionManagerTest() {
+        this.encryptionManager = new EncryptionManager();
+    }
 
     @DisplayName("EncryptionManager에서 암호화시 기존의 password와 다른 문자가 나와야 한다.")
     @Test
