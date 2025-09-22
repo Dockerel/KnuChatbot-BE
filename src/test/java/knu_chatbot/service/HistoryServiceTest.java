@@ -1,6 +1,7 @@
 package knu_chatbot.service;
 
 import jakarta.persistence.EntityManager;
+import knu_chatbot.config.WithContainerTest;
 import knu_chatbot.controller.response.HistoryResponse;
 import knu_chatbot.controller.response.QuestionAndAnswerResponse;
 import knu_chatbot.entity.*;
@@ -20,9 +21,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Transactional
 @SpringBootTest
-class HistoryServiceTest {
+@Transactional
+class HistoryServiceTest extends WithContainerTest {
 
     @Autowired
     HistoryService historyService;

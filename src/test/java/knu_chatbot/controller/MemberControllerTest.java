@@ -1,6 +1,7 @@
 package knu_chatbot.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import knu_chatbot.controller.request.MemberEmailCheckRequest;
 import knu_chatbot.controller.request.MemberLoginRequest;
 import knu_chatbot.controller.request.MemberSignupRequest;
@@ -9,6 +10,7 @@ import knu_chatbot.service.MemberService;
 import knu_chatbot.service.request.MemberEmailCheckServiceRequest;
 import knu_chatbot.service.request.MemberLoginServiceRequest;
 import knu_chatbot.service.response.MemberResponse;
+import knu_chatbot.util.DiscordClient;
 import knu_chatbot.util.SessionConst;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,12 @@ class MemberControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    DiscordClient discordClient;
+
+    @MockitoBean
+    MeterRegistry meterRegistry;
 
     @MockitoBean
     private MemberService memberService;

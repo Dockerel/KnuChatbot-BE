@@ -26,6 +26,7 @@ public class Member extends DateTimeEntity {
 
     private String nickname;
 
+    @Builder.Default
     private int questionCount = 0;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
