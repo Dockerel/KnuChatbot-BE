@@ -28,5 +28,10 @@ jobs:
       - name: grant permission to gradlew
         run: chmod +x gradlew
 
-      - name: test
+      - name: test for dev
+        if: github.event.pull_request.base.ref == 'dev'
         run: ./gradlew test
+
+      - name: test for main
+        if: github.event.pull_request.base.ref == 'main'
+        run: ./gradle clean build
