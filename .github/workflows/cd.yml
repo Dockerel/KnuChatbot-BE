@@ -43,7 +43,7 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
       - name: deploy to server
-        run: kubectl apply -f knu-chatbot/webserver/deploy-webserver.yaml --kubeconfig ~/.kube/config
+        run: kubectl apply -f k3s/deployment.yaml --kubeconfig ~/.kube/config
 
       - name: wait for rollout
         run: kubectl rollout status deployment/hostname-deployment --timeout=180s --kubeconfig ~/.kube/config
