@@ -23,7 +23,6 @@ public class QueryCountInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        System.out.println("QueryCountInterceptor.preHandle");
         // 1. HTTP 메서드 추출
         String httpMethod = request.getMethod();
 
