@@ -48,10 +48,8 @@ jobs:
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
-      - name: deploy to server
-        run: kubectl set image deployment/hostname-deployment \
-          my-webserver=${{ secrets.DOCKER_USERNAME }}/knuchatbot:${{ steps.vars.outputs.GIT_SHA }} \
-          --kubeconfig ~/.kube/config
+      - name: set new image
+        run: kubectl set image deployment/hostname-deployment my-webserver=${{ secrets.DOCKER_USERNAME }}/knuchatbot:${{ steps.vars.outputs.GIT_SHA }} --kubeconfig ~/.kube/config
 
       - name: wait for rollout
         run: kubectl rollout status deployment/hostname-deployment --timeout=180s --kubeconfig ~/.kube/config
