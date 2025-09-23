@@ -22,13 +22,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: set image tags
+        id: vars
+        run: echo "GIT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
       - name: build and push docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/arm64
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/knuchatbot:latest
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/knuchatbot:${{ steps.vars.outputs.GIT_SHA }}
+            ${{ secrets.DOCKER_USERNAME }}/knuchatbot:latest
 
       - name: set up kubectl
         uses: azure/setup-kubectl@v3
@@ -43,7 +49,9 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
       - name: deploy to server
-        run: kubectl apply -f k3s/deployment.yaml --kubeconfig ~/.kube/config
+        run: kubectl set image deployment/hostname-deployment \
+          my-webserver=${{ secrets.DOCKER_USERNAME }}/knuchatbot:${{ steps.vars.outputs.GIT_SHA }} \
+          --kubeconfig ~/.kube/config
 
       - name: wait for rollout
         run: kubectl rollout status deployment/hostname-deployment --timeout=180s --kubeconfig ~/.kube/config
