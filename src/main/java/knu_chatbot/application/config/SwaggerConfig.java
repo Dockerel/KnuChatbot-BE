@@ -16,16 +16,19 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .components(new Components())
+                .components(
+                        new Components()
+                                .addSecuritySchemes(BEARER_AUTH, createSecurityScheme())
+                )
                 .info(createApiInfo())
-                .addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH))
-                .schemaRequirement(BEARER_AUTH, createSecurityScheme());
+                .addSecurityItem(
+                        new SecurityRequirement().addList(BEARER_AUTH)
+                );
     }
 
     private Info createApiInfo() {
         return new Info()
-                .title("2025 GDG 솔루션 챌린지 - 경북대 1팀 - Todak Service 명세서")
-                .description("[Team Notion 바로가기](https://www.notion.so/2025-GDG-1-Todak-183260f9e1bd80438092de22a6dd801a)")
+                .title("KNU CSE ChatBot 명세서")
                 .version("0.0.1");
     }
 
