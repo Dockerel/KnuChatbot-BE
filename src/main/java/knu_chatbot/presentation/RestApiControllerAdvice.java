@@ -30,7 +30,7 @@ public class RestApiControllerAdvice {
 
     @ExceptionHandler(ServletRequestBindingException.class)
     public ResponseEntity<ApiResponse<Object>> servletRequestBindingException(ServletRequestBindingException e) {
-        ApiResponse<Object> response = ApiResponse.error(new ErrorMessage(ErrorType.USER_LOGIN_REQUIRED_ERROR));
+        ApiResponse<Object> response = ApiResponse.error(new ErrorMessage(ErrorType.BINDING_ERROR));
         return new ResponseEntity<>(response, ErrorType.BINDING_ERROR.getStatus());
     }
 
