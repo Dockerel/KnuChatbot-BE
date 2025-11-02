@@ -17,10 +17,10 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse(ResultType.SUCCESS, data, null);
+        return new ApiResponse<>(ResultType.SUCCESS, data, null);
     }
 
     public static <T> ApiResponse<T> error(ErrorMessage errorMessage) {
-        return new ApiResponse(ResultType.ERROR, null, errorMessage);
+        return new ApiResponse<>(ResultType.ERROR, null, errorMessage);
     }
 }
