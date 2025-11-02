@@ -28,7 +28,7 @@ public class JwtProvider {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${SECRET_KEY}")
+    @Value("${jwt.secret}")
     private String secretKey;
 
     private byte[] secretKeyBytes;
