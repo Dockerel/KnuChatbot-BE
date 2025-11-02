@@ -86,7 +86,7 @@ public class MemberService {
 
         // refreshToken 생성 및 저장
         String newRefreshToken = jwtProvider.createRefreshToken(email);
-        memberRepository.saveRefreshToken(refreshToken, email, JwtProvider.REFRESH_TOKEN_EXPIRE_SECONDS);
+        memberRepository.saveRefreshToken(newRefreshToken, email, JwtProvider.REFRESH_TOKEN_EXPIRE_SECONDS);
 
         return ReissueTokensResponse.of(newAccessToken, newRefreshToken);
     }
