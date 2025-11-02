@@ -1,11 +1,5 @@
 package knu_chatbot.application.service.response;
 
-import knu_chatbot.infrastructure.entity.Member;
-import lombok.Builder;
-import lombok.Getter;
-
-import java.time.LocalDateTime;
-
 //@Getter
 //public class MemberResponse {
 //
