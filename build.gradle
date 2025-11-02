@@ -56,7 +56,7 @@ dependencies {
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.7.0'
 
     // security
-    implementation 'org.springframework.security:spring-security-crypto:6.0.3'
+    implementation 'org.springframework.security:spring-security-crypto'
 
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
