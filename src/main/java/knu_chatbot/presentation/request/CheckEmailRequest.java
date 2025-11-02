@@ -13,7 +13,7 @@ public class CheckEmailRequest {
 
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "이메일 형태가 아닙니다.")
-    String email;
+    private String email;
 
     @Builder
     public CheckEmailRequest(String email) {
