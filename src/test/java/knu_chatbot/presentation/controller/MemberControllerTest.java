@@ -1,15 +1,18 @@
 package knu_chatbot.presentation.controller;
 
 import jakarta.servlet.http.Cookie;
+import knu_chatbot.application.dto.AuthUser;
+import knu_chatbot.application.dto.request.ChangePasswordServiceRequest;
 import knu_chatbot.application.dto.request.LoginServiceRequest;
 import knu_chatbot.application.dto.request.SignupServiceRequest;
-import knu_chatbot.application.dto.response.LoginResponse;
-import knu_chatbot.application.dto.response.ReissueTokensResponse;
+import knu_chatbot.application.dto.response.*;
 import knu_chatbot.application.error.ErrorType;
 import knu_chatbot.application.error.KnuChatbotException;
+import knu_chatbot.presentation.request.ChangePasswordRequest;
 import knu_chatbot.presentation.request.CheckEmailRequest;
 import knu_chatbot.presentation.request.LoginRequest;
 import knu_chatbot.presentation.request.SignupRequest;
+import knu_chatbot.presentation.response.MyPageResponse;
 import knu_chatbot.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +23,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -401,6 +404,211 @@ class MemberControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.resultType").value("ERROR"))
                 .andExpect(jsonPath("$.errorMessage.message").value("쿠키에 RefreshToken이 없습니다."))
                 .andExpect(jsonPath("$.errorMessage.code").value("UNAUTHORIZED"));
+    }
+
+    @DisplayName("마이페이지 정보를 불러온다.")
+    @Test
+    void getMyPage() throws Exception {
+        // given
+        MyPageResponse response = MyPageResponse.builder()
+                .email(TEST_EMAIL)
+                .build();
+
+        given(memberService.getMyPage(anyString()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        get("/api/v1/members/me")
+                ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultType").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.email").value(TEST_EMAIL));
+    }
+
+    @DisplayName("로그아웃 한다.")
+    @Test
+    void logout() throws Exception {
+        // given
+        String message = "로그아웃이 완료되었습니다.";
+        LogoutResponse response = LogoutResponse.of(message);
+
+        given(memberService.logout(anyString()))
+                .willReturn(response);
+
+        String refreshToken = "reissueTokensRefreshToken";
+        Cookie cookie = new Cookie(REFRESH_TOKEN, refreshToken);
+
+        // when // then
+        mockMvc.perform(
+                        post("/api/v1/members/logout")
+                                .cookie(cookie)
+                ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultType").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.message").value(message));
+    }
+
+    @DisplayName("회원탈퇴 한다.")
+    @Test
+    void withdraw() throws Exception {
+        // given
+        String message = "회원탈퇴 완료되었습니다.";
+        WithdrawResponse response = WithdrawResponse.of(message);
+
+        given(memberService.withdraw(anyString()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        delete("/api/v1/members")
+                ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultType").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.message").value(message));
+    }
+
+    @DisplayName("비밀번호를 변경한다.")
+    @Test
+    void changePassword() throws Exception {
+        // given
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .oldPassword("oldPassword")
+                .newPassword("newPassword")
+                .confirmNewPassword("newPassword")
+                .build();
+
+        String message = "비밀번호 변경이 완료되었습니다.";
+        ChangePasswordResponse response = ChangePasswordResponse.of(message);
+
+        given(memberService.changePassword(any(AuthUser.class), any(ChangePasswordServiceRequest.class)))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultType").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.message").value(message));
+    }
+
+    @DisplayName("비밀번호를 변경 시 이전 비밀번호는 필수값이다.")
+    @Test
+    void changePasswordWithoutOldPassword() throws Exception {
+        // given
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .newPassword("newPassword")
+                .confirmNewPassword("newPassword")
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultType").value("ERROR"))
+                .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage.data").value("이전 비밀번호는 필수입니다."));
+    }
+
+    @DisplayName("비밀번호를 변경 시 새로운 비밀번호는 필수값이다.")
+    @Test
+    void changePasswordWithoutNewPassword() throws Exception {
+        // given
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .oldPassword("oldPassword")
+                .confirmNewPassword("newPassword")
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultType").value("ERROR"))
+                .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage.data").value("새로운 비밀번호는 필수입니다."));
+    }
+
+    @DisplayName("비밀번호를 변경 시 비밀번호의 길이는 최소 8글자 입니다.")
+    @Test
+    void changePasswordWithShortNewPassword() throws Exception {
+        // given
+        String newPassword = "a".repeat(7);
+
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .oldPassword("oldPassword")
+                .newPassword(newPassword)
+                .confirmNewPassword("newPassword")
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultType").value("ERROR"))
+                .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage.data").value("길이는 최소 8글자, 최대 20글자 입니다."));
+    }
+
+    @DisplayName("비밀번호를 변경 시 비밀번호의 길이는 최대 20글자 입니다.")
+    @Test
+    void changePasswordWithLongNewPassword() throws Exception {
+        // given
+        String newPassword = "a".repeat(21);
+
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .oldPassword("oldPassword")
+                .newPassword(newPassword)
+                .confirmNewPassword(newPassword)
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultType").value("ERROR"))
+                .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage.data").value("길이는 최소 8글자, 최대 20글자 입니다."));
+    }
+
+    @DisplayName("비밀번호를 변경 시 새로운 비밀번호 확인은 필수값이다.")
+    @Test
+    void changePasswordWithoutConfirmNewPassword() throws Exception {
+        // given
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .oldPassword("oldPassword")
+                .newPassword("newPassword")
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultType").value("ERROR"))
+                .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage.data").value("새로운 비밀번호 확인은 필수입니다."));
     }
 
 }

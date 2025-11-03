@@ -17,4 +17,7 @@ public interface MemberRepository {
 
     void deleteRefreshToken(String refreshToken);
 
+    void deleteMemberByEmail(String email);
+
+    void updatePasswordByEmail(String email, String newEncryptedPassword);
 }

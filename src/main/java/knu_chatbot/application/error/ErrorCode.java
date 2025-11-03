@@ -15,6 +15,8 @@ public enum ErrorCode {
     E1006,
     E1007,
     E1008,
+    E1009,
+    E1010,
 
     // 히스토리
     E2000,

@@ -22,6 +22,20 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Generate application-dev.properties
+        run: |
+          mkdir -p src/main/resources
+          cat <<EOF > src/main/resources/application-dev.properties
+          MYSQL_HOST=${{ secrets.MYSQL_HOST }}
+          MYSQL_PORT=${{ secrets.MYSQL_PORT }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          EOF
+
       - name: set up gradle
         uses: gradle/actions/setup-gradle@v3
 

@@ -1,13 +1,12 @@
 package knu_chatbot.application.service;
 
+import knu_chatbot.application.dto.AuthUser;
 import knu_chatbot.application.dto.MemberDto;
+import knu_chatbot.application.dto.request.ChangePasswordServiceRequest;
 import knu_chatbot.application.dto.request.CheckEmailServiceRequest;
 import knu_chatbot.application.dto.request.LoginServiceRequest;
 import knu_chatbot.application.dto.request.SignupServiceRequest;
-import knu_chatbot.application.dto.response.CheckEmailResponse;
-import knu_chatbot.application.dto.response.LoginResponse;
-import knu_chatbot.application.dto.response.ReissueTokensResponse;
-import knu_chatbot.application.dto.response.SignupResponse;
+import knu_chatbot.application.dto.response.*;
 import knu_chatbot.application.error.ErrorType;
 import knu_chatbot.application.error.KnuChatbotException;
 import knu_chatbot.application.repository.MemberRepository;
@@ -37,7 +36,9 @@ public class MemberService {
 
     @Transactional
     public SignupResponse signup(SignupServiceRequest request) {
-        validatePasswordMatch(request);
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new KnuChatbotException(ErrorType.USER_CONFIRM_PASSWORD_ERROR, request);
+        }
 
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new KnuChatbotException(ErrorType.USER_INVALID_EMAIL_ERROR, request.getEmail());
@@ -96,10 +97,38 @@ public class MemberService {
         return MyPageResponse.from(memberDto);
     }
 
-    private void validatePasswordMatch(SignupServiceRequest request) {
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new KnuChatbotException(ErrorType.USER_CONFIRM_PASSWORD_ERROR, request);
+    public LogoutResponse logout(String refreshToken) {
+        memberRepository.deleteRefreshToken(refreshToken);
+        return LogoutResponse.of("로그아웃이 완료되었습니다.");
+    }
+
+    @Transactional
+    public WithdrawResponse withdraw(String email) {
+        memberRepository.deleteMemberByEmail(email);
+
+        // TODO : 히스토리 및 채팅 삭제
+
+        return WithdrawResponse.of("회원탈퇴가 완료되었습니다.");
+    }
+
+    @Transactional
+    public ChangePasswordResponse changePassword(AuthUser authUser, ChangePasswordServiceRequest request) {
+        MemberDto memberDto = memberRepository.findByEmail(authUser.getEmail());
+
+        // 이전 비밀번호 검증
+        if (!passwordEncryptor.verifyPassword(request.getOldPassword(), memberDto.getPassword())) {
+            throw new KnuChatbotException(ErrorType.USER_OLD_PASSWORD_MISMATCH_ERROR);
         }
+
+        // 새로운 비밀번호 검증
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new KnuChatbotException(ErrorType.USER_NEW_PASSWORD_MISMATCH_ERROR);
+        }
+
+        String newEncryptedPassword = passwordEncryptor.encryptPassword(request.getNewPassword());
+        memberRepository.updatePasswordByEmail(authUser.getEmail(),newEncryptedPassword);
+
+        return ChangePasswordResponse.of("비밀번호가 변경되었습니다.");
     }
 
 }

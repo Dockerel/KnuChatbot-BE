@@ -35,8 +35,7 @@ public class MemberRepositoryImpl implements MemberRepository {
 
     @Override
     public MemberDto findByEmail(String email) {
-        Member member = memberJpaRepository.findByEmail(email)
-                .orElseThrow(() -> new KnuChatbotException(ErrorType.USER_INVALID_ERROR));
+        Member member = getOrThrowMemberByEmail(email);
         return memberMapper.convert(member);
     }
 
@@ -54,6 +53,25 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public void deleteRefreshToken(String refreshToken) {
         redisTemplate.delete(refreshToken);
+    }
+
+    @Override
+    public void deleteMemberByEmail(String email) {
+        memberJpaRepository.deleteByEmail(email);
+    }
+
+    @Override
+    public void updatePasswordByEmail(String email, String newEncryptedPassword) {
+        Member member = getOrThrowMemberByEmail(email);
+
+        member.changePassword(newEncryptedPassword);
+
+        memberJpaRepository.save(member);
+    }
+
+    private Member getOrThrowMemberByEmail(String email) {
+        return memberJpaRepository.findByEmail(email)
+                .orElseThrow(() -> new KnuChatbotException(ErrorType.USER_INVALID_ERROR));
     }
 
 }

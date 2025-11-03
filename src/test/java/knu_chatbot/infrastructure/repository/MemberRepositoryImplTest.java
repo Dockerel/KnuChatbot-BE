@@ -117,4 +117,27 @@ class MemberRepositoryImplTest extends IntegrationTestSupport {
         assertThat(redisTemplate.opsForValue().get(refreshToken)).isNull();
     }
 
+    @DisplayName("비밀번호를 변경한다.")
+    @Test
+    void updatePasswordByEmail() {
+        // given
+        String email = "email";
+        String oldPassword = "password";
+        String newPassword = "newPassword";
+
+        Member member = Member.builder()
+                .email(email)
+                .password(oldPassword)
+                .build();
+
+        memberJpaRepository.save(member);
+
+        // when
+        memberRepositoryImpl.updatePasswordByEmail(email, newPassword);
+
+        // then
+        MemberDto memberDto = memberRepositoryImpl.findByEmail(email);
+        assertThat(memberDto.getPassword()).isEqualTo(newPassword);
+    }
+
 }
