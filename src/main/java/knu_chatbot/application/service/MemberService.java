@@ -2,6 +2,7 @@ package knu_chatbot.application.service;
 
 import knu_chatbot.application.dto.AuthUser;
 import knu_chatbot.application.dto.MemberDto;
+import knu_chatbot.application.dto.request.ChangePasswordServiceRequest;
 import knu_chatbot.application.dto.request.CheckEmailServiceRequest;
 import knu_chatbot.application.dto.request.LoginServiceRequest;
 import knu_chatbot.application.dto.request.SignupServiceRequest;

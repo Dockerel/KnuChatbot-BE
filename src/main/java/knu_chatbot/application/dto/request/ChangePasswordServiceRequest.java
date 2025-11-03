@@ -1,4 +1,4 @@
-package knu_chatbot.application.dto.response;
+package knu_chatbot.application.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;

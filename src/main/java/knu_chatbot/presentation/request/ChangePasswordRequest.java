@@ -1,7 +1,7 @@
 package knu_chatbot.presentation.request;
 
 import jakarta.validation.constraints.NotBlank;
-import knu_chatbot.application.dto.response.ChangePasswordServiceRequest;
+import knu_chatbot.application.dto.request.ChangePasswordServiceRequest;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

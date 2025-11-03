@@ -2,6 +2,7 @@ package knu_chatbot.presentation.controller;
 
 import jakarta.servlet.http.Cookie;
 import knu_chatbot.application.dto.AuthUser;
+import knu_chatbot.application.dto.request.ChangePasswordServiceRequest;
 import knu_chatbot.application.dto.request.LoginServiceRequest;
 import knu_chatbot.application.dto.request.SignupServiceRequest;
 import knu_chatbot.application.dto.response.*;
