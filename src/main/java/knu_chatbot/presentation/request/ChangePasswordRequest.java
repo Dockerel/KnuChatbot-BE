@@ -18,16 +18,21 @@ public class ChangePasswordRequest {
     @Length(min = 8, max = 20, message = "길이는 최소 8글자, 최대 20글자 입니다.")
     private String newPassword;
 
+    @NotBlank(message = "새로운 비밀번호 확인은 필수입니다.")
+    private String confirmNewPassword;
+
     @Builder
-    public ChangePasswordRequest(String oldPassword, String newPassword) {
+    public ChangePasswordRequest(String oldPassword, String newPassword, String confirmNewPassword) {
         this.oldPassword = oldPassword;
         this.newPassword = newPassword;
+        this.confirmNewPassword = confirmNewPassword;
     }
 
     public ChangePasswordServiceRequest toServiceRequest() {
         return ChangePasswordServiceRequest.builder()
                 .oldPassword(oldPassword)
                 .newPassword(newPassword)
+                .confirmNewPassword(confirmNewPassword)
                 .build();
     }
 }

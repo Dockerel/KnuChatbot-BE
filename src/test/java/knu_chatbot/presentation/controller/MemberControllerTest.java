@@ -475,6 +475,7 @@ class MemberControllerTest extends ControllerTestSupport {
         ChangePasswordRequest request = ChangePasswordRequest.builder()
                 .oldPassword("oldPassword")
                 .newPassword("newPassword")
+                .confirmNewPassword("newPassword")
                 .build();
 
         String message = "비밀번호 변경이 완료되었습니다.";
@@ -500,6 +501,7 @@ class MemberControllerTest extends ControllerTestSupport {
         // given
         ChangePasswordRequest request = ChangePasswordRequest.builder()
                 .newPassword("newPassword")
+                .confirmNewPassword("newPassword")
                 .build();
 
         // when // then
@@ -521,6 +523,7 @@ class MemberControllerTest extends ControllerTestSupport {
         // given
         ChangePasswordRequest request = ChangePasswordRequest.builder()
                 .oldPassword("oldPassword")
+                .confirmNewPassword("newPassword")
                 .build();
 
         // when // then
@@ -545,6 +548,7 @@ class MemberControllerTest extends ControllerTestSupport {
         ChangePasswordRequest request = ChangePasswordRequest.builder()
                 .oldPassword("oldPassword")
                 .newPassword(newPassword)
+                .confirmNewPassword("newPassword")
                 .build();
 
         // when // then
@@ -569,6 +573,7 @@ class MemberControllerTest extends ControllerTestSupport {
         ChangePasswordRequest request = ChangePasswordRequest.builder()
                 .oldPassword("oldPassword")
                 .newPassword(newPassword)
+                .confirmNewPassword(newPassword)
                 .build();
 
         // when // then
@@ -582,6 +587,28 @@ class MemberControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.errorMessage.data").value("길이는 최소 8글자, 최대 20글자 입니다."));
+    }
+
+    @DisplayName("비밀번호를 변경 시 새로운 비밀번호 확인은 필수값이다.")
+    @Test
+    void changePasswordWithoutConfirmNewPassword() throws Exception {
+        // given
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .oldPassword("oldPassword")
+                .newPassword("newPassword")
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/api/v1/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultType").value("ERROR"))
+                .andExpect(jsonPath("$.errorMessage.message").value("요청이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.errorMessage.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage.data").value("새로운 비밀번호 확인은 필수입니다."));
     }
 
 }

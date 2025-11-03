@@ -226,6 +226,7 @@ class MemberServiceTest extends IntegrationTestSupport {
         ChangePasswordServiceRequest request = ChangePasswordServiceRequest.builder()
                 .oldPassword(oldPassword)
                 .newPassword(newPassword)
+                .confirmNewPassword(newPassword)
                 .build();
 
         // when
@@ -233,6 +234,74 @@ class MemberServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(response).isNotNull();
+    }
+
+    @DisplayName("비밀번호를 변경 시 올바른 이전 비밀번호가 필요하다.")
+    @Test
+    void changePasswordWithWrongOldPassword() {
+        // given
+        String email = "test@test.com";
+        String oldPassword = "oldPassword";
+
+        SignupServiceRequest signupRequest = SignupServiceRequest.builder()
+                .email(email)
+                .password(oldPassword)
+                .confirmPassword(oldPassword)
+                .build();
+
+        memberService.signup(signupRequest);
+
+        AuthUser authUser = AuthUser.builder()
+                .email(email)
+                .build();
+
+        String wrongOldPassword = "wrongOldPassword";
+        String newPassword = "newPassword";
+        ChangePasswordServiceRequest request = ChangePasswordServiceRequest.builder()
+                .oldPassword(wrongOldPassword)
+                .newPassword(newPassword)
+                .confirmNewPassword(newPassword)
+                .build();
+
+        // when // then
+        assertThatThrownBy(() -> memberService.changePassword(authUser, request))
+                .isInstanceOf(KnuChatbotException.class)
+                .extracting("ErrorType")
+                .isEqualTo(ErrorType.USER_OLD_PASSWORD_MISMATCH_ERROR);
+    }
+
+    @DisplayName("비밀번호를 변경 시 새로운 비밀번호의 확인이 일치해야 한다.")
+    @Test
+    void changePasswordWithWrongConfirmOldPassword() {
+        // given
+        String email = "test@test.com";
+        String oldPassword = "oldPassword";
+
+        SignupServiceRequest signupRequest = SignupServiceRequest.builder()
+                .email(email)
+                .password(oldPassword)
+                .confirmPassword(oldPassword)
+                .build();
+
+        memberService.signup(signupRequest);
+
+        AuthUser authUser = AuthUser.builder()
+                .email(email)
+                .build();
+
+        String newPassword = "newPassword";
+        String wrongConfirmNewPassword = "wrongConfirmNewPassword";
+        ChangePasswordServiceRequest request = ChangePasswordServiceRequest.builder()
+                .oldPassword(oldPassword)
+                .newPassword(newPassword)
+                .confirmNewPassword(wrongConfirmNewPassword)
+                .build();
+
+        // when // then
+        assertThatThrownBy(() -> memberService.changePassword(authUser, request))
+                .isInstanceOf(KnuChatbotException.class)
+                .extracting("ErrorType")
+                .isEqualTo(ErrorType.USER_NEW_PASSWORD_MISMATCH_ERROR);
     }
 
 }

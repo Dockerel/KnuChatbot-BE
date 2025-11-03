@@ -36,7 +36,9 @@ public class MemberService {
 
     @Transactional
     public SignupResponse signup(SignupServiceRequest request) {
-        validatePasswordMatch(request);
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new KnuChatbotException(ErrorType.USER_CONFIRM_PASSWORD_ERROR, request);
+        }
 
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new KnuChatbotException(ErrorType.USER_INVALID_EMAIL_ERROR, request.getEmail());
@@ -113,9 +115,14 @@ public class MemberService {
     public ChangePasswordResponse changePassword(AuthUser authUser, ChangePasswordServiceRequest request) {
         MemberDto memberDto = memberRepository.findByEmail(authUser.getEmail());
 
-        // 비밀번호 검증
+        // 이전 비밀번호 검증
         if (!passwordEncryptor.verifyPassword(request.getOldPassword(), memberDto.getPassword())) {
-            throw new KnuChatbotException(ErrorType.USER_LOGIN_ERROR);
+            throw new KnuChatbotException(ErrorType.USER_OLD_PASSWORD_MISMATCH_ERROR);
+        }
+
+        // 새로운 비밀번호 검증
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new KnuChatbotException(ErrorType.USER_NEW_PASSWORD_MISMATCH_ERROR);
         }
 
         String newEncryptedPassword = passwordEncryptor.encryptPassword(request.getNewPassword());
@@ -124,10 +131,5 @@ public class MemberService {
         return ChangePasswordResponse.of("비밀번호가 변경되었습니다.");
     }
 
-    private void validatePasswordMatch(SignupServiceRequest request) {
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new KnuChatbotException(ErrorType.USER_CONFIRM_PASSWORD_ERROR, request);
-        }
-    }
 }
 

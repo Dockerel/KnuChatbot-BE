@@ -22,6 +22,8 @@ public enum ErrorType {
     USER_COOKIE_REFRESH_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, ErrorCode.E1006, "쿠키에 RefreshToken이 없습니다.", LogLevel.INFO),
     USER_INVALID_REFRESH_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, ErrorCode.E1007, "유효하지 않은 RefreshToken 입니다.", LogLevel.INFO),
     USER_INVALID_ACCESS_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, ErrorCode.E1008, "유효하지 않은 AccessToken 입니다.", LogLevel.INFO),
+    USER_OLD_PASSWORD_MISMATCH_ERROR(HttpStatus.UNAUTHORIZED, ErrorCode.E1009, "이전 비밀번호가 일치하지 않습니다.", LogLevel.INFO),
+    USER_NEW_PASSWORD_MISMATCH_ERROR(HttpStatus.UNAUTHORIZED, ErrorCode.E1010, "새로운 비밀번호가 일치하지 않습니다.", LogLevel.INFO),
 
     // 히스토리
     HISTORY_INVALID_ERROR(HttpStatus.UNAUTHORIZED, ErrorCode.E2000, "히스토리가 존재하지 않습니다.", LogLevel.INFO);
