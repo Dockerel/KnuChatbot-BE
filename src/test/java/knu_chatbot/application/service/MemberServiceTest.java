@@ -1,12 +1,10 @@
 package knu_chatbot.application.service;
 
+import knu_chatbot.application.dto.AuthUser;
 import knu_chatbot.application.dto.request.CheckEmailServiceRequest;
 import knu_chatbot.application.dto.request.LoginServiceRequest;
 import knu_chatbot.application.dto.request.SignupServiceRequest;
-import knu_chatbot.application.dto.response.CheckEmailResponse;
-import knu_chatbot.application.dto.response.LoginResponse;
-import knu_chatbot.application.dto.response.ReissueTokensResponse;
-import knu_chatbot.application.dto.response.SignupResponse;
+import knu_chatbot.application.dto.response.*;
 import knu_chatbot.application.error.ErrorType;
 import knu_chatbot.application.error.KnuChatbotException;
 import knu_chatbot.application.util.JwtProvider;
@@ -202,6 +200,38 @@ class MemberServiceTest extends IntegrationTestSupport {
                 .isInstanceOf(KnuChatbotException.class)
                 .extracting("ErrorType")
                 .isEqualTo(ErrorType.USER_INVALID_REFRESH_TOKEN_ERROR);
+    }
+
+    @DisplayName("비밀번호를 변경한다.")
+    @Test
+    void changePassword() {
+        // given
+        String email = "test@test.com";
+        String oldPassword = "oldPassword";
+
+        SignupServiceRequest signupRequest = SignupServiceRequest.builder()
+                .email(email)
+                .password(oldPassword)
+                .confirmPassword(oldPassword)
+                .build();
+
+        memberService.signup(signupRequest);
+
+        AuthUser authUser = AuthUser.builder()
+                .email(email)
+                .build();
+
+        String newPassword = "newPassword";
+        ChangePasswordServiceRequest request = ChangePasswordServiceRequest.builder()
+                .oldPassword(oldPassword)
+                .newPassword(newPassword)
+                .build();
+
+        // when
+        ChangePasswordResponse response = memberService.changePassword(authUser, request);
+
+        // then
+        assertThat(response).isNotNull();
     }
 
 }

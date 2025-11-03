@@ -1,13 +1,11 @@
 package knu_chatbot.application.service;
 
+import knu_chatbot.application.dto.AuthUser;
 import knu_chatbot.application.dto.MemberDto;
 import knu_chatbot.application.dto.request.CheckEmailServiceRequest;
 import knu_chatbot.application.dto.request.LoginServiceRequest;
 import knu_chatbot.application.dto.request.SignupServiceRequest;
-import knu_chatbot.application.dto.response.CheckEmailResponse;
-import knu_chatbot.application.dto.response.LoginResponse;
-import knu_chatbot.application.dto.response.ReissueTokensResponse;
-import knu_chatbot.application.dto.response.SignupResponse;
+import knu_chatbot.application.dto.response.*;
 import knu_chatbot.application.error.ErrorType;
 import knu_chatbot.application.error.KnuChatbotException;
 import knu_chatbot.application.repository.MemberRepository;
@@ -96,11 +94,39 @@ public class MemberService {
         return MyPageResponse.from(memberDto);
     }
 
+    public LogoutResponse logout(String refreshToken) {
+        memberRepository.deleteRefreshToken(refreshToken);
+        return LogoutResponse.of("회원가입이 완료되었습니다.");
+    }
+
+    @Transactional
+    public WithdrawResponse withdraw(String email) {
+        memberRepository.deleteMemberByEmail(email);
+
+        // TODO : 히스토리 및 채팅 삭제
+
+        return WithdrawResponse.of("회원탈퇴가 완료되었습니다.");
+    }
+
+    @Transactional
+    public ChangePasswordResponse changePassword(AuthUser authUser, ChangePasswordServiceRequest request) {
+        MemberDto memberDto = memberRepository.findByEmail(authUser.getEmail());
+
+        // 비밀번호 검증
+        if (!passwordEncryptor.verifyPassword(request.getOldPassword(), memberDto.getPassword())) {
+            throw new KnuChatbotException(ErrorType.USER_LOGIN_ERROR);
+        }
+
+        String newEncryptedPassword = passwordEncryptor.encryptPassword(request.getNewPassword());
+        memberRepository.updatePasswordByEmail(authUser.getEmail(),newEncryptedPassword);
+
+        return ChangePasswordResponse.of("비밀번호가 변경되었습니다.");
+    }
+
     private void validatePasswordMatch(SignupServiceRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new KnuChatbotException(ErrorType.USER_CONFIRM_PASSWORD_ERROR, request);
         }
     }
-
 }
 

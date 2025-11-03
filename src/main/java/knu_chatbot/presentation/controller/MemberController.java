@@ -8,16 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import knu_chatbot.application.dto.AuthUser;
-import knu_chatbot.application.dto.response.CheckEmailResponse;
-import knu_chatbot.application.dto.response.LoginResponse;
-import knu_chatbot.application.dto.response.ReissueTokensResponse;
-import knu_chatbot.application.dto.response.SignupResponse;
+import knu_chatbot.application.dto.response.*;
 import knu_chatbot.application.error.ErrorType;
 import knu_chatbot.application.error.KnuChatbotException;
 import knu_chatbot.application.service.MemberService;
 import knu_chatbot.application.util.JwtProvider;
 import knu_chatbot.presentation.ApiResponse;
 import knu_chatbot.presentation.annotation.Login;
+import knu_chatbot.presentation.request.ChangePasswordRequest;
 import knu_chatbot.presentation.request.CheckEmailRequest;
 import knu_chatbot.presentation.request.LoginRequest;
 import knu_chatbot.presentation.request.SignupRequest;
@@ -91,7 +89,6 @@ public class MemberController {
         return ApiResponse.success(reissueTokensResponse.toAccessTokenResponse());
     }
 
-    // TODO : 마이페이지
     @Operation(
             summary = "마이페이지",
             description = "마이페이지 정보를 보여준다."
@@ -102,9 +99,38 @@ public class MemberController {
     }
 
     // TODO : 로그아웃
-    // TODO : 회원 탈퇴
-    // TODO : 회원 정보 수정
-    // TODO : 비밀번호 수정
+    @Operation(
+            summary = "로그아웃",
+            description = "로그아웃 한다."
+    )
+    @PostMapping("/logout")
+    public ApiResponse<LogoutResponse> logout(HttpServletRequest request) {
+        String refreshToken = getRefreshTokenFromCookie(request);
+        return ApiResponse.success(memberService.logout(refreshToken));
+    }
+
+    @Operation(
+            summary = "회원 탈퇴"
+    )
+    @DeleteMapping
+    public ApiResponse<WithdrawResponse> withdraw(@Parameter(hidden = true) @Login AuthUser authUser) {
+        return ApiResponse.success(memberService.withdraw(authUser.getEmail()));
+    }
+
+    // TODO : 비밀번호 변경
+    @Operation(
+            summary = "비밀번호 변경",
+            description = "비밀번호를 수정한다."
+    )
+    @PatchMapping
+    public ApiResponse<ChangePasswordResponse> changePassword(
+            @Parameter(hidden = true) @Login AuthUser authUser,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        return ApiResponse.success(memberService.changePassword(authUser, request.toServiceRequest()));
+    }
+
+    // TODO : 회원 정보 수정 (현재는 수정할 정보가 없음)
 
     private ResponseCookie createCookie(String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN, refreshToken)

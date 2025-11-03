@@ -79,4 +79,38 @@ class MemberJpaRepositoryTest extends IntegrationTestSupport {
         assertThat(findMember).isEmpty();
     }
 
+    @DisplayName("존재하는 이메일로 회원을 삭제한다.")
+    @Test
+    void deleteByEmailWithExistEmail() {
+        // given
+        String email = "email";
+        Member member = Member.builder()
+                .email(email)
+                .password("password")
+                .build();
+
+        memberJpaRepository.save(member);
+
+        // when
+        memberJpaRepository.deleteByEmail(email);
+
+        // then
+        Optional<Member> findMember = memberJpaRepository.findByEmail(email);
+        assertThat(findMember).isEmpty();
+    }
+
+    @DisplayName("존재하지 않는 이메일로 회원을 삭제한다.")
+    @Test
+    void deleteByEmailWithNonExistentEmail() {
+        // given
+        String nonExistentEmail = "email";
+
+        // when
+        memberJpaRepository.deleteByEmail(nonExistentEmail);
+
+        // then
+        Optional<Member> findMember = memberJpaRepository.findByEmail(nonExistentEmail);
+        assertThat(findMember).isEmpty();
+    }
+
 }
