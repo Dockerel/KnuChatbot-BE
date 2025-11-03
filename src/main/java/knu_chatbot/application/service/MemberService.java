@@ -96,7 +96,7 @@ public class MemberService {
 
     public LogoutResponse logout(String refreshToken) {
         memberRepository.deleteRefreshToken(refreshToken);
-        return LogoutResponse.of("회원가입이 완료되었습니다.");
+        return LogoutResponse.of("로그아웃이 완료되었습니다.");
     }
 
     @Transactional
