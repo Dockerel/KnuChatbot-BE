@@ -98,7 +98,6 @@ public class MemberController {
         return ApiResponse.success(memberService.getMyPage(authUser.getEmail()));
     }
 
-    // TODO : 로그아웃
     @Operation(
             summary = "로그아웃",
             description = "로그아웃 한다."
@@ -117,7 +116,6 @@ public class MemberController {
         return ApiResponse.success(memberService.withdraw(authUser.getEmail()));
     }
 
-    // TODO : 비밀번호 변경
     @Operation(
             summary = "비밀번호 변경",
             description = "비밀번호를 수정한다."
@@ -130,7 +128,7 @@ public class MemberController {
         return ApiResponse.success(memberService.changePassword(authUser, request.toServiceRequest()));
     }
 
-    // TODO : 회원 정보 수정 (현재는 수정할 정보가 없음)
+    // TODO : 회원 정보 수정 (현재는 비즈니스 상 수정할 정보가 없음)
 
     private ResponseCookie createCookie(String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN, refreshToken)
