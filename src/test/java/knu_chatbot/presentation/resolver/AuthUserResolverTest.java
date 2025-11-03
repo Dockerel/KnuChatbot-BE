@@ -8,6 +8,7 @@ import knu_chatbot.presentation.annotation.Login;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,7 +26,7 @@ class AuthUserResolverTest {
     @InjectMocks
     private AuthUserResolver authUserResolver;
 
-    @DisplayName("@AuthUser 어노테이션이 있고 타입이 AuthUser면 true를 반환한다")
+    @DisplayName("@Login 어노테이션이 있고 타입이 AuthUser면 true를 반환한다")
     @Test
     void supportsParameter() {
         // given
@@ -43,7 +44,7 @@ class AuthUserResolverTest {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("@AuthUser 어노테이션이 없으면 false를 반환한다")
+    @DisplayName("@Login 어노테이션이 없으면 false를 반환한다")
     @Test
     void supportsParameterWithoutAnnotation() {
         // given
@@ -59,7 +60,7 @@ class AuthUserResolverTest {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("@AuthUser 어노테이션이 있고 타입이 AuthUser가 아니면 false를 반환한다")
+    @DisplayName("@Login 어노테이션이 있고 타입이 AuthUser가 아니면 false를 반환한다")
     @Test
     void supportsParameterWithoutTypeAuthUser() {
         // given
@@ -67,8 +68,8 @@ class AuthUserResolverTest {
 
         given(parameter.hasParameterAnnotation(Login.class))
                 .willReturn(true);
-        given(parameter.getParameterType())
-                .willAnswer(invocation -> Object.class);
+        BDDMockito.<Class<?>>given(parameter.getParameterType())
+                .willReturn(Object.class);
 
         // when
         boolean result = authUserResolver.supportsParameter(parameter);
