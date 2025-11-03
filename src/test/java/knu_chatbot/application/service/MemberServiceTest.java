@@ -207,8 +207,8 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void changePassword() {
         // given
-        String email = "test@test.com";
-        String oldPassword = "oldPassword";
+        String email = "changePassword@test.com";
+        String oldPassword = "changePasswordOldPassword";
 
         SignupServiceRequest signupRequest = SignupServiceRequest.builder()
                 .email(email)
@@ -222,7 +222,7 @@ class MemberServiceTest extends IntegrationTestSupport {
                 .email(email)
                 .build();
 
-        String newPassword = "newPassword";
+        String newPassword = "changePasswordNewPassword";
         ChangePasswordServiceRequest request = ChangePasswordServiceRequest.builder()
                 .oldPassword(oldPassword)
                 .newPassword(newPassword)
@@ -230,10 +230,17 @@ class MemberServiceTest extends IntegrationTestSupport {
                 .build();
 
         // when
-        ChangePasswordResponse response = memberService.changePassword(authUser, request);
+        memberService.changePassword(authUser, request);
 
         // then
-        assertThat(response).isNotNull();
+        LoginServiceRequest loginRequest = LoginServiceRequest.builder()
+                .email(email)
+                .password(newPassword)
+                .build();
+        LoginResponse loginResponse = memberService.login(loginRequest);
+
+        assertThat(loginResponse.getAccessToken()).isNotNull();
+        assertThat(loginResponse.getRefreshToken()).isNotNull();
     }
 
     @DisplayName("비밀번호를 변경 시 올바른 이전 비밀번호가 필요하다.")
