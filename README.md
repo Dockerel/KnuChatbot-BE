@@ -1,16 +1,9 @@
-# todo
+<h1 align="center">학사 챗봇</h1>
 
-* /api/v1/member/check-email ✅
-* /api/v1/member/signup ✅
-* /api/v1/member/login ✅
-* /api/v1/member/me ✅
-* /api/v1/member (delete) ✅
+## 개요
+RAG 기반 학사 챗봇
 
-* /api/v1/chat : create new chat ❌
+## 시스템 아키텍처
+<img width="562" height="461" alt="image" src="https://github.com/user-attachments/assets/345a790b-4e8e-49e7-b958-9b468b3763ca" />
 
-* /api/v1/histories : (GET) - get all histories ✅
-* /api/v1/histories : (POST) - new history ✅
-* /api/v1/histories/:historyId : (GET) - get chats by historyId ✅
-* /api/v1/histories/:historyId : (POST) - create new chat ❌
-* /api/v1/histories/:historyId : (PUT) [historyName] ✅
-* /api/v1/histories/:historyId : (DELETE) ✅
+## 담당한 기능
