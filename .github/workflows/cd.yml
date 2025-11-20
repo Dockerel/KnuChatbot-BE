@@ -1,9 +1,11 @@
 name: cd pipeline
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   cd:
