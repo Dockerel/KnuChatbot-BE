@@ -3,6 +3,28 @@
 ## 개요
 RAG 기반 학사 챗봇 서비스
 
+## 개발 정보
+* 2025.06 - 2025.08 (3M / 4명) [BE]
+
+## 기술 스택
+<p dir="auto">
+<img src="https://img.shields.io/badge/-Java-DB6900?logo=Java&amp;logoColor=white&amp;labelColor=DB6900" style="max-width: 100%;">
+<br>
+<img src="https://img.shields.io/badge/-Spring-6DB33F?logo=Spring&amp;logoColor=white&amp;labelColor=6DB33F" style="max-width: 100%;">
+<img src="https://img.shields.io/badge/-SpringBoot-6DB33F?logo=springboot&amp;logoColor=white&amp;labelColor=6DB33F" style="max-width: 100%;">
+<img src="https://img.shields.io/badge/-SpringDataJpa-6DB33F?logo=SpringDataJpa&amp;logoColor=white&amp;labelColor=6DB33F" style="max-width: 100%;">
+<img src="https://img.shields.io/badge/-Junit5-25A162?logo=Junit5&amp;logoColor=white&amp;labelColor=25A162" style="max-width: 100%;">
+<br>
+<img src="https://img.shields.io/badge/-MySql-438CB2?logo=MySql&amp;logoColor=white&amp;labelColor=438CB2" style="max-width: 100%;">
+<br>
+<img src="https://img.shields.io/badge/-GithubActions-2088FF?logo=githubactions&amp;logoColor=white&amp;labelColor=2088FF" style="max-width: 100%;">
+<img src="https://img.shields.io/badge/-Docker-2496ED?logo=Docker&amp;logoColor=white&amp;labelColor=2496ED" style="max-width: 100%;">
+<img src="https://img.shields.io/badge/-Kubernetes-326CE5?logo=Kubernetes&amp;logoColor=white&amp;labelColor=326CE5" style="max-width: 100%;">
+<br>
+<img src="https://img.shields.io/badge/-Prometheus-E6522C?logo=Prometheus&amp;logoColor=white&amp;labelColor=E6522C" style="max-width: 100%;">
+<img src="https://img.shields.io/badge/-Grafana-F46800?logo=Grafana&amp;logoColor=white&amp;labelColor=F46800" style="max-width: 100%;">
+</p>
+
 ## 시스템 아키텍처
 <img width="562" height="461" alt="image" src="https://github.com/user-attachments/assets/345a790b-4e8e-49e7-b958-9b468b3763ca" />
 
